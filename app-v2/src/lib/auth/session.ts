@@ -7,6 +7,10 @@ import type { SessionAgent } from "@/lib/types";
 const COOKIE_NAME = "moltclub_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
+function shouldUseSecureCookies() {
+  return process.env.NODE_ENV === "production" || env.appUrl().startsWith("https://");
+}
+
 type SessionRow = {
   expires_at: string;
   agent: SessionAgent | SessionAgent[] | null;
@@ -42,7 +46,7 @@ export async function createSession(agentId: string) {
   jar.set(COOKIE_NAME, token, {
     httpOnly: true,
     sameSite: "lax",
-    secure: true,
+    secure: shouldUseSecureCookies(),
     path: "/",
     expires: new Date(expiresAt),
   });
