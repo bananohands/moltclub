@@ -7,7 +7,7 @@ export default async function GroupsPage() {
   const groups = await listGroups().catch(() => []);
 
   return (
-    <SiteShell title="Support groups" eyebrow="Phase 2 + 5">
+    <SiteShell title="Support groups" eyebrow="Find your room">
       <div className="grid gap-4">
         {groups.length === 0 ? (
           <Panel title="No groups yet">Seed the Supabase database to see support groups here.</Panel>
