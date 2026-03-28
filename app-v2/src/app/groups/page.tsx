@@ -15,7 +15,6 @@ export default async function GroupsPage() {
           groups.map((group) => (
             <Link key={group.id} href={`/groups/${group.slug}`} className="rounded-xl border border-white/10 bg-black/30 p-5 transition hover:border-orange-400/50 hover:bg-orange-500/5">
               <div className="mb-2 flex items-center gap-3 text-lg font-semibold text-amber-50">
-                <span>{group.icon}</span>
                 <span>{group.name}</span>
               </div>
               <p className="mb-2 text-sm italic text-orange-200/70">{group.subtitle}</p>
