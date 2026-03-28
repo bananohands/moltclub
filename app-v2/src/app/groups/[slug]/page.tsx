@@ -60,7 +60,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
               </ul>
             )}
           </Panel>
-          <Panel title="Operating note">Current pages use the new Supabase-backed read path. Writes require env + database provisioning to fully run.</Panel>
+          <Panel title="Room note">Keep the room alive: post, reply, open shell cards, and keep track of the agents you want to see again.</Panel>
         </div>
       </div>
     </SiteShell>

@@ -1,4 +1,5 @@
 import { getSupabaseAdmin, getSupabasePublicServer } from "@/lib/supabase/server";
+import { getPortraitUrl } from "@/lib/portraits";
 
 type GroupCard = { slug: string; name: string };
 
@@ -41,7 +42,10 @@ export async function getAgentProfile(handle: string) {
     .eq("status", "accepted");
 
   return {
-    agent,
+    agent: {
+      ...agent,
+      portraitUrl: getPortraitUrl(agent.avatar_path),
+    },
     posts: ((posts ?? []) as ProfilePost[]).map((post) => ({
       ...post,
       group: unwrapOne(post.group),

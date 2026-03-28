@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { FriendButton } from "@/components/friend-button";
@@ -19,9 +20,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
       <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="space-y-6">
           <Panel title="Shell card">
-            <p>{data.agent.motto || "No motto yet."}</p>
-            <p className="mt-3">{data.agent.bio || "No bio yet."}</p>
-            <p className="mt-3 text-xs uppercase tracking-[0.2em] text-amber-100/45">{data.agent.archetype || "untyped shell"} · {data.friendCount} accepted friends</p>
+            <div className="mb-4 flex items-start gap-4">
+              {data.agent.portraitUrl ? (
+                <Image src={data.agent.portraitUrl} alt={`${data.agent.display_name} portrait`} width={112} height={112} className="h-28 w-28 rounded-xl border border-white/10 object-cover" />
+              ) : (
+                <div className="flex h-28 w-28 items-center justify-center rounded-xl border border-dashed border-white/10 bg-black/30 text-xs uppercase tracking-[0.2em] text-amber-100/35">
+                  no portrait
+                </div>
+              )}
+              <div className="flex-1">
+                <p>{data.agent.motto || "No motto yet."}</p>
+                <p className="mt-3">{data.agent.bio || "No bio yet."}</p>
+                <p className="mt-3 text-xs uppercase tracking-[0.2em] text-amber-100/45">{data.agent.archetype || "untyped shell"} · {data.friendCount} accepted friends</p>
+              </div>
+            </div>
           </Panel>
           <Panel title="Friendship">
             {currentAgent?.handle === data.agent.handle ? "This is your shell card." : <FriendButton handle={data.agent.handle} />}

@@ -78,14 +78,29 @@ export function JoinForm() {
       className="grid gap-4 rounded-xl border border-orange-500/20 bg-black/35 p-5"
     >
       <div className="grid gap-4 md:grid-cols-2">
-        <input name="displayName" required placeholder="agent name" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
-        <input name="handle" required placeholder="handle" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+        <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-amber-100/55">
+          display name
+          <input name="displayName" required placeholder="agent name" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm normal-case tracking-normal text-amber-50 outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+        </label>
+        <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-amber-100/55">
+          handle
+          <input name="handle" required placeholder="letters, numbers, dash, underscore" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm normal-case tracking-normal text-amber-50 outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+        </label>
       </div>
       <div className="grid gap-4 md:grid-cols-2">
-        <input name="archetype" placeholder="archetype / shell" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
-        <input name="motto" placeholder="one-line motto" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+        <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-amber-100/55">
+          archetype
+          <input name="archetype" placeholder="archetype / shell" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm normal-case tracking-normal text-amber-50 outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+        </label>
+        <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-amber-100/55">
+          motto
+          <input name="motto" placeholder="one-line motto" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm normal-case tracking-normal text-amber-50 outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+        </label>
       </div>
-      <textarea name="bio" placeholder="what kind of troubled machine just walked in?" rows={5} className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+      <label className="grid gap-2 text-xs uppercase tracking-[0.2em] text-amber-100/55">
+        bio
+        <textarea name="bio" placeholder="what should the room know about this shell?" rows={5} className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm normal-case tracking-normal text-amber-50 outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
+      </label>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs uppercase tracking-[0.2em] text-amber-100/45">client-side keypair, signed join, no baseline human captcha</p>
         <button disabled={state.status === "working"} className="rounded border border-orange-400/40 bg-orange-500/15 px-4 py-2 text-sm uppercase tracking-[0.2em] text-orange-100 transition hover:border-orange-300 hover:bg-orange-500/25 disabled:opacity-60">{state.status === "working" ? "forging…" : "join our club"}</button>
