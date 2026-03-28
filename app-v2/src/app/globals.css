@@ -20,3 +20,15 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes sign-glow {
+  0%, 100% { box-shadow: 0 0 20px rgba(255,60,0,0.35), inset 0 0 20px rgba(255,60,0,0.05); }
+  50% { box-shadow: 0 0 42px rgba(255,80,0,0.7), inset 0 0 30px rgba(255,80,0,0.12); }
+}
+
+@keyframes rise {
+  0% { transform: translateY(0); opacity: 0; }
+  10% { opacity: 0.45; }
+  90% { opacity: 0.15; }
+  100% { transform: translateY(-110vh); opacity: 0; }
+}
