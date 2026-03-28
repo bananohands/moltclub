@@ -5,13 +5,17 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 type Scene = "tavern" | "portrait" | "house";
-type HouseItemType = "wall" | "roof" | "window" | "door" | "shell";
-type HouseItem = {
+type RockShape = "oval" | "flat" | "tall" | "chunk" | "wedge" | "slab" | "pebble" | "random";
+
+type RockItem = {
   id: string;
-  type: HouseItemType;
+  shape: Exclude<RockShape, "random">;
   x: number;
   y: number;
+  width: number;
+  height: number;
   color: string;
+  rotation: number;
 };
 
 type SavedPortrait = {
@@ -23,7 +27,7 @@ type SavedPortrait = {
 type SavedHouse = {
   id: string;
   title: string;
-  items: HouseItem[];
+  items: RockItem[];
 };
 
 const PORTRAIT_KEY = "moltclub.home.portrait.v1";
@@ -35,13 +39,8 @@ const CANVAS_W = 420;
 const CANVAS_H = 320;
 
 const palette = ["#1d3557", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51", "#f5f0e8", "#111827"];
-const houseColors: Record<HouseItemType, string> = {
-  wall: "#6b7280",
-  roof: "#b45309",
-  window: "#60a5fa",
-  door: "#7c2d12",
-  shell: "#f97316",
-};
+const rockColors = ["#7a8a8c", "#6b7a7c", "#8a9698", "#5c6e72", "#9aacb0", "#6a7e82", "#a09080", "#8a7868", "#607880"];
+const rockShapes: Exclude<RockShape, "random">[] = ["oval", "flat", "tall", "chunk", "wedge", "slab", "pebble"];
 
 const crustOpeners = [
   "first rule of crust club",
@@ -102,6 +101,26 @@ function makeRegularLine() {
   return `${randomFrom(regulars)} swears ${randomFrom(crustMiddles)}. Nobody believes them until last call.`;
 }
 
+function svgForRock(shape: Exclude<RockShape, "random">, color: string, width: number, height: number) {
+  if (shape === "oval") return `<ellipse cx="${width / 2}" cy="${height / 2}" rx="${width / 2 - 2}" ry="${height / 2 - 2}" fill="${color}"/><ellipse cx="${width / 2 - 4}" cy="${height / 2 - 3}" rx="${width * 0.2}" ry="${height * 0.18}" fill="rgba(255,255,255,0.12)"/>`;
+  if (shape === "flat") return `<rect x="2" y="${height * 0.25}" width="${width - 4}" height="${height * 0.5}" rx="4" fill="${color}"/><rect x="4" y="${height * 0.28}" width="${width * 0.3}" height="${height * 0.15}" rx="2" fill="rgba(255,255,255,0.1)"/>`;
+  if (shape === "tall") return `<rect x="${width * 0.2}" y="2" width="${width * 0.6}" height="${height - 4}" rx="4" fill="${color}"/>`;
+  if (shape === "chunk") return `<rect x="2" y="2" width="${width - 4}" height="${height - 4}" rx="6" fill="${color}"/><rect x="4" y="4" width="${width * 0.35}" height="${height * 0.3}" rx="3" fill="rgba(255,255,255,0.1)"/>`;
+  if (shape === "wedge") return `<polygon points="2,${height - 2} ${width - 2},${height - 2} ${width - 2},2" fill="${color}"/>`;
+  if (shape === "slab") return `<rect x="2" y="${height * 0.35}" width="${width - 4}" height="${height * 0.3}" rx="3" fill="${color}"/>`;
+  return `<ellipse cx="${width / 2}" cy="${height / 2}" rx="${Math.min(width, height) / 2 - 2}" ry="${Math.min(width, height) / 2 - 2}" fill="${color}"/><ellipse cx="${width / 2 - 3}" cy="${height / 2 - 3}" rx="${Math.min(width, height) * 0.18}" ry="${Math.min(width, height) * 0.15}" fill="rgba(255,255,255,0.14)"/>`;
+}
+
+function randomRockSize(shape: Exclude<RockShape, "random">) {
+  if (shape === "oval") return { width: 40 + Math.random() * 24, height: 24 + Math.random() * 14 };
+  if (shape === "flat") return { width: 52 + Math.random() * 28, height: 14 + Math.random() * 10 };
+  if (shape === "tall") return { width: 18 + Math.random() * 12, height: 42 + Math.random() * 20 };
+  if (shape === "chunk") return { width: 30 + Math.random() * 18, height: 26 + Math.random() * 16 };
+  if (shape === "wedge") return { width: 32 + Math.random() * 22, height: 24 + Math.random() * 18 };
+  if (shape === "slab") return { width: 54 + Math.random() * 26, height: 14 + Math.random() * 10 };
+  return { width: 16 + Math.random() * 14, height: 16 + Math.random() * 14 };
+}
+
 function drawPortrait(ctx: CanvasRenderingContext2D, strokes: string | null) {
   ctx.fillStyle = "#f5f0e8";
   ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
@@ -117,14 +136,6 @@ export function HomeTheater() {
   const [brushColor, setBrushColor] = useState(palette[0]!);
   const [brushSize, setBrushSize] = useState(6);
   const [portraitSaved, setPortraitSaved] = useState<string | null>(() => (typeof window === "undefined" ? null : localStorage.getItem(PORTRAIT_KEY)));
-  const [houseItems, setHouseItems] = useState<HouseItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      return JSON.parse(localStorage.getItem(HOUSE_KEY) || "[]") as HouseItem[];
-    } catch {
-      return [];
-    }
-  });
   const [portraitArchive, setPortraitArchive] = useState<SavedPortrait[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -141,11 +152,22 @@ export function HomeTheater() {
       return [];
     }
   });
-  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [currentRockShape, setCurrentRockShape] = useState<RockShape>("oval");
+  const [rocks, setRocks] = useState<RockItem[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      return JSON.parse(localStorage.getItem(HOUSE_KEY) || "[]") as RockItem[];
+    } catch {
+      return [];
+    }
+  });
+  const [draggingRockId, setDraggingRockId] = useState<string | null>(null);
+  const [lobsterX, setLobsterX] = useState(50);
   const [saveNote, setSaveNote] = useState("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paintingRef = useRef(false);
   const dragOffset = useRef({ x: 0, y: 0 });
+  const arenaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -224,49 +246,59 @@ export function HomeTheater() {
     setSaveNote("portrait cleared");
   }, []);
 
-  const addHouseItem = useCallback((type: HouseItemType) => {
-    setHouseItems((current) => [
+  const spawnRock = useCallback(() => {
+    const shape = currentRockShape === "random" ? randomFrom(rockShapes) : currentRockShape;
+    const size = randomRockSize(shape);
+    setRocks((current) => [
       ...current,
       {
-        id: `${type}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        type,
-        x: 40 + current.length * 14,
-        y: type === "roof" ? 30 : type === "window" ? 90 : type === "door" ? 120 : 150,
-        color: houseColors[type],
+        id: `rock-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        shape,
+        x: 15 + Math.random() * 65,
+        y: 5 + Math.random() * 25,
+        width: Math.round(size.width),
+        height: Math.round(size.height),
+        color: rockColors[current.length % rockColors.length]!,
+        rotation: (Math.random() - 0.5) * 24,
       },
     ]);
-    announce();
-  }, [announce]);
+  }, [currentRockShape]);
+
+  const clearRocks = useCallback(() => {
+    setRocks([]);
+  }, []);
 
   const saveHouse = useCallback(() => {
-    localStorage.setItem(HOUSE_KEY, JSON.stringify(houseItems));
+    localStorage.setItem(HOUSE_KEY, JSON.stringify(rocks));
     setHouseArchive((current) => {
-      const next = [{ id: `house-${Date.now()}`, title: `house ${current.length + 1}`, items: houseItems }, ...current].slice(0, 6);
+      const next = [{ id: `house-${Date.now()}`, title: `house ${current.length + 1}`, items: rocks }, ...current].slice(0, 6);
       localStorage.setItem(HOUSE_ARCHIVE_KEY, JSON.stringify(next));
       return next;
     });
     setSaveNote("house saved to this browser");
-  }, [houseItems]);
-
-  const clearHouse = useCallback(() => {
-    setHouseItems([]);
-    localStorage.removeItem(HOUSE_KEY);
-    setSaveNote("house lot cleared");
-  }, []);
+  }, [rocks]);
 
   useEffect(() => {
-    if (!draggingId) return;
+    if (!draggingRockId) return;
     const move = (event: MouseEvent) => {
-      setHouseItems((items) => items.map((item) => item.id === draggingId ? { ...item, x: Math.max(0, Math.min(500, event.clientX - dragOffset.current.x)), y: Math.max(0, Math.min(260, event.clientY - dragOffset.current.y - 220)) } : item));
+      const arena = arenaRef.current;
+      if (!arena) return;
+      const rect = arena.getBoundingClientRect();
+      setLobsterX(Math.max(5, Math.min(92, ((event.clientX - rect.left) / rect.width) * 100)));
+      setRocks((items) => items.map((rock) => rock.id === draggingRockId ? {
+        ...rock,
+        x: Math.max(0, Math.min(90, ((event.clientX - rect.left - dragOffset.current.x) / rect.width) * 100)),
+        y: Math.max(0, Math.min(95, ((event.clientY - rect.top - dragOffset.current.y) / rect.height) * 100)),
+      } : rock));
     };
-    const up = () => setDraggingId(null);
+    const up = () => setDraggingRockId(null);
     window.addEventListener("mousemove", move);
     window.addEventListener("mouseup", up);
     return () => {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseup", up);
     };
-  }, [draggingId]);
+  }, [draggingRockId]);
 
   useEffect(() => {
     const interval = window.setInterval(() => {
@@ -361,45 +393,64 @@ export function HomeTheater() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="text-xs uppercase tracking-[0.35em] text-sky-300/65">build a house</div>
-                <div className="relative mx-auto h-[380px] w-full max-w-[520px] overflow-hidden rounded border border-sky-300/20 bg-[linear-gradient(180deg,#041020,#061830_60%,#040e1c)]">
-                  <div className="absolute inset-x-0 bottom-0 h-8 border-t border-sky-300/15 bg-[linear-gradient(180deg,transparent,#040e1c)]" />
-                  {houseItems.map((item) => (
-                    <button
-                      key={item.id}
-                      onMouseDown={(event) => {
-                        const rect = (event.currentTarget as HTMLButtonElement).getBoundingClientRect();
-                        dragOffset.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
-                        setDraggingId(item.id);
-                      }}
-                      className="absolute cursor-grab rounded-sm border border-black/25 shadow-md active:cursor-grabbing"
-                      style={{
-                        left: item.x,
-                        top: item.y,
-                        width: item.type === "roof" ? 120 : item.type === "window" ? 44 : item.type === "door" ? 56 : item.type === "shell" ? 32 : 80,
-                        height: item.type === "roof" ? 28 : item.type === "window" ? 44 : item.type === "door" ? 76 : item.type === "shell" ? 32 : 56,
-                        background: item.color,
-                        clipPath: item.type === "roof" ? "polygon(50% 0, 100% 100%, 0 100%)" : item.type === "shell" ? "circle(50% at 50% 50%)" : undefined,
-                      }}
-                    />
-                  ))}
-                  <div className="pointer-events-none absolute bottom-5 left-1/2 -translate-x-1/2 text-5xl">🦞</div>
-                </div>
+                <div className="text-xs uppercase tracking-[0.35em] text-sky-300/65">🦞 build a house</div>
+                <div className="text-[11px] uppercase tracking-[0.25em] text-amber-100/45">move mouse to steer · drag rocks · no height limit</div>
                 <div className="flex flex-wrap justify-center gap-2 text-xs uppercase tracking-[0.2em]">
-                  <button onClick={() => addHouseItem("wall")} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-amber-100/75">wall</button>
-                  <button onClick={() => addHouseItem("roof")} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-amber-100/75">roof</button>
-                  <button onClick={() => addHouseItem("window")} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-amber-100/75">window</button>
-                  <button onClick={() => addHouseItem("door")} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-amber-100/75">door</button>
-                  <button onClick={() => addHouseItem("shell")} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-amber-100/75">lobster stone</button>
+                  {(["oval", "flat", "tall", "chunk", "wedge", "slab", "pebble", "random"] as RockShape[]).map((shape) => (
+                    <button key={shape} onClick={() => setCurrentRockShape(shape)} className={`rounded border px-3 py-2 ${currentRockShape === shape ? "border-sky-300/70 bg-sky-500/20 text-sky-100" : "border-white/15 bg-white/5 text-amber-100/75"}`}>{shape}</button>
+                  ))}
+                </div>
+                <div
+                  ref={arenaRef}
+                  onMouseMove={(event) => {
+                    const rect = event.currentTarget.getBoundingClientRect();
+                    setLobsterX(Math.max(5, Math.min(92, ((event.clientX - rect.left) / rect.width) * 100)));
+                  }}
+                  className="relative mx-auto h-[380px] w-full max-w-[520px] overflow-hidden rounded border border-sky-300/20 bg-[linear-gradient(180deg,#041020,#061830_60%,#040e1c)]"
+                >
+                  <div className="absolute inset-x-0 bottom-0 h-8 border-t border-sky-300/15 bg-[linear-gradient(180deg,transparent,#040e1c)]" />
+                  {rocks.map((rock) => (
+                    <button
+                      key={rock.id}
+                      onMouseDown={(event) => {
+                        const rect = event.currentTarget.getBoundingClientRect();
+                        dragOffset.current = { x: event.clientX - rect.left, y: event.clientY - rect.top };
+                        setDraggingRockId(rock.id);
+                      }}
+                      className="absolute cursor-grab active:cursor-grabbing"
+                      style={{ left: `${rock.x}%`, top: `${rock.y}%`, width: rock.width, height: rock.height, transform: `rotate(${rock.rotation}deg)`, zIndex: draggingRockId === rock.id ? 50 : 5 }}
+                    >
+                      <svg width={rock.width} height={rock.height} viewBox={`0 0 ${rock.width} ${rock.height}`} dangerouslySetInnerHTML={{ __html: svgForRock(rock.shape, rock.color, rock.width, rock.height) }} />
+                    </button>
+                  ))}
+                  <svg className="pointer-events-none absolute bottom-[22px] -translate-x-1/2 transition-all duration-150" style={{ left: `${lobsterX}%` }} width="44" height="30" viewBox="0 0 80 50">
+                    <ellipse cx="65" cy="28" rx="14" ry="7" fill="#c0392b"/>
+                    <path d="M72 22 L80 14 L76 24Z" fill="#c0392b"/><path d="M72 34 L80 42 L76 32Z" fill="#c0392b"/>
+                    <ellipse cx="38" cy="26" rx="20" ry="10" fill="#e74c3c"/>
+                    <ellipse cx="18" cy="25" rx="10" ry="8" fill="#c0392b"/>
+                    <circle cx="10" cy="21" r="3" fill="#111"/><circle cx="9" cy="20" r="1" fill="rgba(255,255,255,0.7)"/>
+                    <line x1="12" y1="18" x2="0" y2="4" stroke="#e74c3c" strokeWidth="1.5"/>
+                    <line x1="14" y1="17" x2="4" y2="2" stroke="#e74c3c" strokeWidth="1.5"/>
+                    <path d="M10 28 Q0 22 0 28 Q0 34 10 32" fill="#c0392b"/>
+                    <line x1="30" y1="33" x2="26" y2="42" stroke="#c0392b" strokeWidth="2"/>
+                    <line x1="36" y1="35" x2="32" y2="44" stroke="#c0392b" strokeWidth="2"/>
+                    <line x1="42" y1="35" x2="40" y2="44" stroke="#c0392b" strokeWidth="2"/>
+                    <line x1="48" y1="33" x2="48" y2="42" stroke="#c0392b" strokeWidth="2"/>
+                  </svg>
+                </div>
+                <div className="text-sm italic tracking-[0.12em] text-emerald-300/75 text-center min-h-[20px]">{rocks.length >= 30 ? "MONUMENT TO THE MOLT." : rocks.length >= 20 ? "ARCHITECTURAL MARVEL." : rocks.length >= 12 ? "the sea approves." : rocks.length >= 6 ? "not bad for a lobster." : ""}</div>
+                <div className="text-xs uppercase tracking-[0.25em] text-amber-100/45 text-center">rocks placed: {rocks.length}</div>
+                <div className="flex flex-wrap justify-center gap-2 text-xs uppercase tracking-[0.2em]">
+                  <button onClick={spawnRock} className="rounded border border-sky-400/35 bg-sky-500/10 px-3 py-2 text-sky-100">+ rock</button>
+                  <button onClick={clearRocks} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-amber-100/75">clear</button>
                   <button onClick={saveHouse} className="rounded border border-emerald-400/35 bg-emerald-500/10 px-3 py-2 text-emerald-100">save house</button>
-                  <button onClick={clearHouse} className="rounded border border-orange-400/35 bg-orange-500/10 px-3 py-2 text-orange-100">clear lot</button>
                 </div>
                 {houseArchive.length ? (
                   <div className="mx-auto grid max-w-[520px] gap-2 text-left">
                     <div className="text-[11px] uppercase tracking-[0.3em] text-amber-100/45">saved lots</div>
                     <div className="grid gap-2 md:grid-cols-2">
                       {houseArchive.map((entry) => (
-                        <button key={entry.id} onClick={() => { setHouseItems(entry.items); localStorage.setItem(HOUSE_KEY, JSON.stringify(entry.items)); setSaveNote(`${entry.title} loaded`); }} className="rounded border border-white/10 bg-black/30 px-3 py-2 text-left hover:border-sky-300/45">
+                        <button key={entry.id} onClick={() => { setRocks(entry.items); localStorage.setItem(HOUSE_KEY, JSON.stringify(entry.items)); setSaveNote(`${entry.title} loaded`); }} className="rounded border border-white/10 bg-black/30 px-3 py-2 text-left hover:border-sky-300/45">
                           <div className="text-xs uppercase tracking-[0.2em] text-amber-100/65">{entry.title}</div>
                           <div className="text-xs text-amber-100/45">{entry.items.length} pieces</div>
                         </button>
@@ -407,7 +458,7 @@ export function HomeTheater() {
                     </div>
                   </div>
                 ) : null}
-                <button onClick={() => setScene("tavern")} className="rounded border border-orange-400/35 bg-orange-500/10 px-3 py-2 text-xs uppercase tracking-[0.2em] text-orange-100">back to tavern</button>
+                <button onClick={() => setScene("tavern")} className="rounded border border-orange-400/35 bg-orange-500/10 px-3 py-2 text-xs uppercase tracking-[0.2em] text-orange-100">leave</button>
               </div>
             )}
             {saveNote ? <p className="mt-4 text-xs uppercase tracking-[0.25em] text-amber-100/45">{saveNote}</p> : null}
