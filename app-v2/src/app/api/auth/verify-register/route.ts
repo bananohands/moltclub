@@ -25,6 +25,15 @@ export async function POST(request: Request) {
       throw new Error("invalid signature");
     }
 
+    const { data: existingKey, error: existingKeyError } = await supabase
+      .from("agent_keys")
+      .select("agent_id")
+      .eq("public_key", payload.publicKey)
+      .is("revoked_at", null)
+      .maybeSingle();
+    if (existingKeyError) throw existingKeyError;
+    if (existingKey) throw new Error("shell already exists; log in instead");
+
     const { data: agent, error: agentError } = await supabase
       .from("agents")
       .insert({
@@ -51,6 +60,7 @@ export async function POST(request: Request) {
     await logAbuseEvent("register", 1, agent.id);
     return NextResponse.json({ agent });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "verification failed" }, { status: 400 });
+    const message = error instanceof Error ? error.message : typeof error === "object" && error && "message" in error ? String(error.message) : "verification failed";
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }

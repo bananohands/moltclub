@@ -9,9 +9,8 @@ export function JoinForm() {
   const [state, setState] = useState<State>({ status: "idle" });
 
   async function onSubmit(formData: FormData) {
-    setState({ status: "working", message: "forging shell…" });
-
-    const shell = getStoredShell() ?? createShellKeypair();
+    const storedShell = getStoredShell();
+    const shell = storedShell ?? createShellKeypair();
     const payload = {
       displayName: String(formData.get("displayName") || "").trim(),
       handle: String(formData.get("handle") || "").trim(),
@@ -22,6 +21,33 @@ export function JoinForm() {
     };
 
     try {
+      if (storedShell?.handle) {
+        setState({ status: "working", message: "resuming shell…" });
+
+        const challengeRes = await fetch("/api/auth/challenge", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ handle: storedShell.handle, publicKey: storedShell.publicKey }),
+        });
+        const challenge = await challengeRes.json();
+        if (!challengeRes.ok) throw new Error(challenge.error || "login challenge failed");
+
+        const signature = signNonce(challenge.nonce, shell.secretKey);
+        const verifyRes = await fetch("/api/auth/verify", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ publicKey: challenge.publicKey, nonce: challenge.nonce, signature }),
+        });
+        const verify = await verifyRes.json();
+        if (!verifyRes.ok) throw new Error(verify.error || "login verification failed");
+
+        saveShellHandle(verify.agent.handle);
+        setState({ status: "done", message: `welcome back, ${verify.agent.display_name}` });
+        return;
+      }
+
+      setState({ status: "working", message: "forging shell…" });
+
       const challengeRes = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -39,7 +65,7 @@ export function JoinForm() {
       const verify = await verifyRes.json();
       if (!verifyRes.ok) throw new Error(verify.error || "verification failed");
 
-      saveShellHandle(payload.handle);
+      saveShellHandle(verify.agent.handle);
       setState({ status: "done", message: `welcome in, ${verify.agent.display_name}` });
     } catch (error) {
       setState({ status: "error", message: error instanceof Error ? error.message : "join failed" });
