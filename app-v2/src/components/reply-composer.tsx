@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 export function ReplyComposer({ postId }: { postId: string }) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState<string>("");
 
   async function action(formData: FormData) {
@@ -21,14 +24,16 @@ export function ReplyComposer({ postId }: { postId: string }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "reply failed");
-      setMessage("reply posted. reload to see the thread update.");
+      formRef.current?.reset();
+      setMessage("reply posted.");
+      router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "reply failed");
     }
   }
 
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-white/10 bg-black/25 p-4">
+    <form ref={formRef} action={action} className="space-y-3 rounded-xl border border-white/10 bg-black/25 p-4">
       <div className="grid gap-3 md:grid-cols-[1fr_180px]">
         <textarea name="body" required rows={4} placeholder="your reply..." className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
         <select name="tone" defaultValue="steady" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none focus:border-orange-400/60">

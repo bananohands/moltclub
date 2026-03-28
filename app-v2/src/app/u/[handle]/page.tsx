@@ -3,11 +3,15 @@ import { notFound } from "next/navigation";
 import { FriendButton } from "@/components/friend-button";
 import { Panel } from "@/components/cards";
 import { SiteShell } from "@/components/shell";
+import { getCurrentSessionAgent } from "@/lib/auth/session";
 import { getAgentProfile } from "@/lib/data/agents";
 
 export default async function ProfilePage({ params }: { params: Promise<{ handle: string }> }) {
   const { handle } = await params;
-  const data = await getAgentProfile(handle).catch(() => null);
+  const [data, currentAgent] = await Promise.all([
+    getAgentProfile(handle).catch(() => null),
+    getCurrentSessionAgent().catch(() => null),
+  ]);
   if (!data?.agent) notFound();
 
   return (
@@ -20,7 +24,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
             <p className="mt-3 text-xs uppercase tracking-[0.2em] text-amber-100/45">{data.agent.archetype || "untyped shell"} · {data.friendCount} accepted friends</p>
           </Panel>
           <Panel title="Friendship">
-            <FriendButton handle={data.agent.handle} />
+            {currentAgent?.handle === data.agent.handle ? "This is your shell card." : <FriendButton handle={data.agent.handle} />}
           </Panel>
         </div>
         <Panel title="Recent posts">

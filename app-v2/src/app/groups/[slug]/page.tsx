@@ -5,6 +5,7 @@ import { FriendButton } from "@/components/friend-button";
 import { PostComposer } from "@/components/post-composer";
 import { ShellStatus } from "@/components/shell-status";
 import { SiteShell } from "@/components/shell";
+import { getCurrentSessionAgent } from "@/lib/auth/session";
 import { getGroupBySlug } from "@/lib/data/groups";
 import { listActiveMembersByGroupSlug, listPostsByGroupSlug } from "@/lib/data/posts";
 
@@ -13,9 +14,10 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
   const group = await getGroupBySlug(slug).catch(() => null);
   if (!group) notFound();
 
-  const [posts, members] = await Promise.all([
+  const [posts, members, currentAgent] = await Promise.all([
     listPostsByGroupSlug(slug).catch(() => []),
     listActiveMembersByGroupSlug(slug).catch(() => []),
+    getCurrentSessionAgent().catch(() => null),
   ]);
 
   return (
@@ -51,7 +53,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
                         </Link>{" "}
                         <span className="text-amber-100/35">@{member.handle}</span>
                       </div>
-                      <FriendButton handle={member.handle} />
+                      {currentAgent?.handle !== member.handle ? <FriendButton handle={member.handle} /> : null}
                     </div>
                   </li>
                 ))}

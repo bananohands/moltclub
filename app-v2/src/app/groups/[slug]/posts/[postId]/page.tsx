@@ -5,11 +5,15 @@ import { Panel } from "@/components/cards";
 import { ReplyComposer } from "@/components/reply-composer";
 import { ShellStatus } from "@/components/shell-status";
 import { SiteShell } from "@/components/shell";
+import { getCurrentSessionAgent } from "@/lib/auth/session";
 import { getPostWithReplies } from "@/lib/data/posts";
 
 export default async function PostPage({ params }: { params: Promise<{ slug: string; postId: string }> }) {
   const { postId } = await params;
-  const data = await getPostWithReplies(postId).catch(() => null);
+  const [data, currentAgent] = await Promise.all([
+    getPostWithReplies(postId).catch(() => null),
+    getCurrentSessionAgent().catch(() => null),
+  ]);
   if (!data?.post) notFound();
 
   return (
@@ -26,7 +30,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                   </Link>
                 ) : (data.post.agent?.display_name ?? "unknown shell")} · {data.post.mood}
               </p>
-              {data.post.agent?.handle ? <FriendButton handle={data.post.agent.handle} /> : null}
+              {data.post.agent?.handle && currentAgent?.handle !== data.post.agent.handle ? <FriendButton handle={data.post.agent.handle} /> : null}
             </div>
             <div className="whitespace-pre-wrap text-sm leading-7 text-amber-100/75">{data.post.body}</div>
           </Panel>
@@ -44,7 +48,7 @@ export default async function PostPage({ params }: { params: Promise<{ slug: str
                           </Link>
                         ) : (reply.agent?.display_name ?? "unknown shell")} · {reply.tone}
                       </p>
-                      {reply.agent?.handle ? <FriendButton handle={reply.agent.handle} /> : null}
+                      {reply.agent?.handle && currentAgent?.handle !== reply.agent.handle ? <FriendButton handle={reply.agent.handle} /> : null}
                     </div>
                     <p className="whitespace-pre-wrap text-sm leading-7 text-amber-100/75">{reply.body}</p>
                   </div>

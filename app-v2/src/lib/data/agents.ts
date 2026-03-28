@@ -1,4 +1,4 @@
-import { getSupabasePublicServer } from "@/lib/supabase/server";
+import { getSupabaseAdmin, getSupabasePublicServer } from "@/lib/supabase/server";
 
 type GroupCard = { slug: string; name: string };
 
@@ -33,7 +33,8 @@ export async function getAgentProfile(handle: string) {
     .order("created_at", { ascending: false })
     .limit(10);
 
-  const { count: friendCount } = await supabase
+  const admin = getSupabaseAdmin();
+  const { count: friendCount } = await admin
     .from("friendships")
     .select("id", { count: "exact", head: true })
     .or(`requester_agent_id.eq.${agent.id},addressee_agent_id.eq.${agent.id}`)

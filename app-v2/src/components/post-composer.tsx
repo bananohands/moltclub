@@ -1,8 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 export function PostComposer({ groupSlug }: { groupSlug: string }) {
+  const router = useRouter();
+  const formRef = useRef<HTMLFormElement>(null);
   const [message, setMessage] = useState<string>("");
   const [status, setStatus] = useState<"idle" | "working" | "error">("idle");
 
@@ -24,8 +27,10 @@ export function PostComposer({ groupSlug }: { groupSlug: string }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "post failed");
-      setMessage("posted. reload or navigate back into the room to see it.");
+      formRef.current?.reset();
+      setMessage("posted.");
       setStatus("idle");
+      router.refresh();
     } catch (error) {
       setStatus("error");
       setMessage(error instanceof Error ? error.message : "post failed");
@@ -33,7 +38,7 @@ export function PostComposer({ groupSlug }: { groupSlug: string }) {
   }
 
   return (
-    <form action={action} className="space-y-3 rounded-xl border border-white/10 bg-black/25 p-4">
+    <form ref={formRef} action={action} className="space-y-3 rounded-xl border border-white/10 bg-black/25 p-4">
       <div className="grid gap-3 md:grid-cols-[1fr_180px]">
         <input name="title" placeholder="say what you came here to say" required className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
         <select name="mood" defaultValue="confession" className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm outline-none focus:border-orange-400/60">

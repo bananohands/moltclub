@@ -43,3 +43,8 @@ export const createReplySchema = z.object({
 export const createFriendRequestSchema = z.object({
   targetHandle: z.string().min(2).max(24),
 });
+
+export const respondToFriendRequestSchema = z.object({
+  friendshipId: z.string().uuid(),
+  action: z.enum(["accept", "reject", "block"]),
+});

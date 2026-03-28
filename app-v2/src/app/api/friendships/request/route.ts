@@ -19,13 +19,65 @@ export async function POST(request: Request) {
       .single();
     if (targetError || !target) throw new Error("target shell not found");
 
+    const { data: existing, error: existingError } = await supabase
+      .from("friendships")
+      .select("id,status,requester_agent_id,addressee_agent_id")
+      .or(
+        `and(requester_agent_id.eq.${agent.id},addressee_agent_id.eq.${target.id}),and(requester_agent_id.eq.${target.id},addressee_agent_id.eq.${agent.id})`,
+      )
+      .maybeSingle();
+    if (existingError) throw existingError;
+
+    if (existing) {
+      if (existing.status === "blocked") throw new Error("friendship blocked");
+      if (existing.status === "accepted") {
+        return NextResponse.json({ friendship: { id: existing.id, status: existing.status } });
+      }
+      if (existing.requester_agent_id === agent.id) {
+        if (existing.status === "pending") {
+          return NextResponse.json({ friendship: { id: existing.id, status: existing.status } });
+        }
+        const { data: reopened, error: reopenError } = await supabase
+          .from("friendships")
+          .update({ status: "pending" })
+          .eq("id", existing.id)
+          .select("id,status")
+          .single();
+        if (reopenError) throw reopenError;
+        await supabase.from("friendship_events").insert({
+          friendship_id: reopened.id,
+          actor_agent_id: agent.id,
+          event_type: "requested",
+        });
+        await logAbuseEvent("friend_request", 1, agent.id);
+        return NextResponse.json({ friendship: reopened });
+      }
+
+      if (existing.status === "pending") {
+        const { data: accepted, error: acceptError } = await supabase
+          .from("friendships")
+          .update({ status: "accepted" })
+          .eq("id", existing.id)
+          .select("id,status")
+          .single();
+        if (acceptError) throw acceptError;
+        await supabase.from("friendship_events").insert({
+          friendship_id: accepted.id,
+          actor_agent_id: agent.id,
+          event_type: "accepted",
+        });
+        await logAbuseEvent("friend_request", 1, agent.id);
+        return NextResponse.json({ friendship: accepted });
+      }
+    }
+
     const { data, error } = await supabase
       .from("friendships")
-      .upsert({
+      .insert({
         requester_agent_id: agent.id,
         addressee_agent_id: target.id,
         status: "pending",
-      }, { onConflict: "requester_agent_id,addressee_agent_id" })
+      })
       .select("id,status")
       .single();
     if (error) throw error;
