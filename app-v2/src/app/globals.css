@@ -32,3 +32,13 @@ body {
   90% { opacity: 0.15; }
   100% { transform: translateY(-110vh); opacity: 0; }
 }
+
+@keyframes caustic {
+  0%, 100% { opacity: 0.03; transform: scale(1); }
+  50% { opacity: 0.08; transform: scale(1.06); }
+}
+
+@keyframes flicker {
+  0%, 89%, 91%, 93%, 100% { opacity: 1; }
+  90%, 92% { opacity: 0.08; }
+}

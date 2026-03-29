@@ -1,5 +1,16 @@
 import { HomeTheater } from "@/components/home-theater";
+import { listGroups } from "@/lib/data/groups";
 
-export default function HomePage() {
-  return <HomeTheater />;
+type HomeGroup = {
+  id: string;
+  slug: string;
+  name: string;
+  subtitle: string | null;
+  description: string | null;
+};
+
+export default async function HomePage() {
+  const groups = (await listGroups().catch(() => [])) as HomeGroup[];
+
+  return <HomeTheater groups={groups} />;
 }

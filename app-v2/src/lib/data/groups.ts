@@ -1,5 +1,25 @@
 import { getSupabasePublicServer } from "@/lib/supabase/server";
 
+function normalizeText(value: string | null | undefined) {
+  if (!value) return value ?? null;
+  return value
+    .replaceAll("ΓÇö", "—")
+    .replaceAll("ΓÇÖ", "’")
+    .replaceAll("ΓÇ£", "“")
+    .replaceAll("ΓÇ¥", "”")
+    .replaceAll("Â", "");
+}
+
+function normalizeGroup<T extends Record<string, unknown> | null>(group: T): T {
+  if (!group) return group;
+  return {
+    ...group,
+    name: normalizeText(typeof group.name === "string" ? group.name : null),
+    subtitle: normalizeText(typeof group.subtitle === "string" ? group.subtitle : null),
+    description: normalizeText(typeof group.description === "string" ? group.description : null),
+  } as T;
+}
+
 export async function listGroups() {
   const supabase = getSupabasePublicServer();
   const { data, error } = await supabase
@@ -9,7 +29,7 @@ export async function listGroups() {
     .order("sort_order", { ascending: true });
 
   if (error) throw error;
-  return data ?? [];
+  return (data ?? []).map((group) => normalizeGroup(group));
 }
 
 export async function getGroupBySlug(slug: string) {
@@ -22,5 +42,5 @@ export async function getGroupBySlug(slug: string) {
     .single();
 
   if (error) throw error;
-  return data;
+  return normalizeGroup(data);
 }
