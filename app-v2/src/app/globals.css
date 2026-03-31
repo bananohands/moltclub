@@ -42,3 +42,21 @@ body {
   0%, 89%, 91%, 93%, 100% { opacity: 1; }
   90%, 92% { opacity: 0.08; }
 }
+
+@keyframes hermes-swim {
+  0% { transform: translate3d(0, 0, 0) scaleX(1); }
+  14% { transform: translate3d(92px, -18px, 0) scaleX(1); }
+  28% { transform: translate3d(196px, -4px, 0) scaleX(1); }
+  42% { transform: translate3d(296px, 14px, 0) scaleX(1); }
+  49% { transform: translate3d(352px, 8px, 0) scaleX(1); }
+  50% { transform: translate3d(352px, 8px, 0) scaleX(-1); }
+  62% { transform: translate3d(256px, -8px, 0) scaleX(-1); }
+  76% { transform: translate3d(146px, 20px, 0) scaleX(-1); }
+  90% { transform: translate3d(44px, 8px, 0) scaleX(-1); }
+  100% { transform: translate3d(0, 0, 0) scaleX(1); }
+}
+
+@keyframes hermes-bob {
+  0%, 100% { margin-top: 0; filter: drop-shadow(0 0 12px rgba(56,189,248,0.18)); }
+  50% { margin-top: -10px; filter: drop-shadow(0 0 18px rgba(125,211,252,0.3)); }
+}

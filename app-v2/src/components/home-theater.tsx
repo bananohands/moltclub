@@ -480,6 +480,17 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
 
         <div className="relative mb-4 flex items-end justify-center [perspective:800px] [perspective-origin:50%_40%] max-md:scale-90 max-sm:scale-[0.82]">
           <div className="pointer-events-none absolute bottom-3 left-1/2 h-28 w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,110,40,0.09),transparent_65%)] blur-xl" />
+          <div className="pointer-events-none absolute left-[6%] top-[-60px] z-30 animate-[hermes-swim_30s_ease-in-out_infinite,hermes-bob_4.1s_ease-in-out_infinite] max-sm:left-[-1%] max-sm:top-[-42px]">
+            <NextImage
+              src="/hermes-transparent.png"
+              alt="Hermes"
+              width={300}
+              height={300}
+              priority
+              unoptimized
+              className="h-auto w-[260px] max-w-none opacity-95 max-sm:w-[170px]"
+            />
+          </div>
 
           <button onClick={() => setScene("paint")} className="group relative z-10 mr-[-2px] mt-3 w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(8px)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
             <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
@@ -505,6 +516,17 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
               <div className="ml-auto h-[14px] w-[10px] border border-sky-300/20 border-b-0 bg-[linear-gradient(180deg,#0a1828,#060f1c)]" />
             </div>
             <div className="relative rounded-t-[5px] border border-sky-300/20 border-b-0 bg-[linear-gradient(160deg,#0e2040_0%,#071530_50%,#050e20_100%)] px-[22px] pb-0 pt-[22px] shadow-[inset_-8px_0_20px_rgba(0,0,0,0.4),inset_8px_0_10px_rgba(255,255,255,0.02),0_20px_45px_rgba(0,0,0,0.45)]">
+              <div className="pointer-events-none absolute -right-[34px] bottom-[-10px] z-20 max-sm:-right-[28px] max-sm:bottom-[-12px]">
+                <NextImage
+                  src="/herm-of-hermes-transparent.png"
+                  alt="Herm of Hermes"
+                  width={94}
+                  height={490}
+                  unoptimized
+                  className="h-auto w-[58px] max-sm:w-[48px]"
+                  style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.42))" }}
+                />
+              </div>
               <div className="absolute inset-x-0 top-0 h-px bg-sky-200/15" />
               <div className="absolute left-[14%] top-[42px] h-[1px] w-[72%] bg-sky-200/8" />
               <div className="absolute left-[14%] top-[68px] h-[1px] w-[72%] bg-sky-200/8" />
