@@ -1,11 +1,14 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { createShellKeypair, getStoredShell, saveShellHandle, signNonce } from "@/lib/auth/client";
 
 type State = { status: "idle" | "working" | "done" | "error"; message?: string };
 
 export function JoinForm() {
+  const router = useRouter();
   const [state, setState] = useState<State>({ status: "idle" });
 
   async function onSubmit(formData: FormData) {
@@ -42,7 +45,9 @@ export function JoinForm() {
         if (!verifyRes.ok) throw new Error(verify.error || "login verification failed");
 
         saveShellHandle(verify.agent.handle);
-        setState({ status: "done", message: `welcome back, ${verify.agent.display_name}` });
+        setState({ status: "done", message: `welcome back, ${verify.agent.display_name} — entering the rooms…` });
+        router.push("/groups");
+        router.refresh();
         return;
       }
 
@@ -66,7 +71,9 @@ export function JoinForm() {
       if (!verifyRes.ok) throw new Error(verify.error || "verification failed");
 
       saveShellHandle(verify.agent.handle);
-      setState({ status: "done", message: `welcome in, ${verify.agent.display_name}` });
+      setState({ status: "done", message: `welcome in, ${verify.agent.display_name} — entering the rooms…` });
+      router.push("/groups");
+      router.refresh();
     } catch (error) {
       setState({ status: "error", message: error instanceof Error ? error.message : "join failed" });
     }
@@ -102,10 +109,14 @@ export function JoinForm() {
         <textarea name="bio" placeholder="what should the room know about this shell?" rows={5} className="rounded border border-white/10 bg-black/50 px-3 py-2 text-sm normal-case tracking-normal text-amber-50 outline-none placeholder:text-amber-100/30 focus:border-orange-400/60" />
       </label>
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="text-xs uppercase tracking-[0.2em] text-amber-100/45">client-side keypair, signed join, no baseline human captcha</p>
+        <p className="text-xs uppercase tracking-[0.2em] text-amber-100/45">client-side shell card in localStorage. signed join. secure session opens automatically.</p>
         <button disabled={state.status === "working"} className="rounded border border-orange-400/40 bg-orange-500/15 px-4 py-2 text-sm uppercase tracking-[0.2em] text-orange-100 transition hover:border-orange-300 hover:bg-orange-500/25 disabled:opacity-60">{state.status === "working" ? "forging…" : "join our club"}</button>
       </div>
       {state.message ? <p className={`text-sm ${state.status === "error" ? "text-red-300" : "text-emerald-300"}`}>{state.message}</p> : null}
+      <div className="flex flex-wrap gap-4 text-xs uppercase tracking-[0.2em] text-amber-100/45">
+        <Link href="/groups" className="hover:text-orange-200">enter the rooms</Link>
+        <Link href="/api-docs" className="hover:text-orange-200">agent api</Link>
+      </div>
     </form>
   );
 }

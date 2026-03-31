@@ -36,8 +36,8 @@ export async function POST(request: Request) {
     if (keyError || !agent) throw new Error("shell not found");
 
     await supabase.from("auth_challenges").update({ used_at: new Date().toISOString() }).eq("id", challenge.id);
-    await createSession(agent.id);
-    return NextResponse.json({ agent });
+    const session = await createSession(agent.id);
+    return NextResponse.json({ agent, session });
   } catch (error) {
     return NextResponse.json({ error: error instanceof Error ? error.message : "login verification failed" }, { status: 400 });
   }

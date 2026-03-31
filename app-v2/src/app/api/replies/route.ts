@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
-    const agent = await requireSessionAgent();
+    const agent = await requireSessionAgent(request);
     await assertActionAllowed("create_reply", agent.id);
     const payload = createReplySchema.parse(await request.json());
     const supabase = getSupabaseAdmin();

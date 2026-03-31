@@ -26,7 +26,7 @@ async function ensurePortraitBucket() {
 
 export async function POST(request: Request) {
   try {
-    const agent = await requireSessionAgent();
+    const agent = await requireSessionAgent(request);
     const formData = await request.formData();
     const portrait = formData.get("portrait");
     if (!(portrait instanceof File)) throw new Error("portrait file required");

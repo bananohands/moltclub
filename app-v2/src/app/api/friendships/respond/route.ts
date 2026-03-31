@@ -12,7 +12,7 @@ const statusByAction = {
 
 export async function POST(request: Request) {
   try {
-    const agent = await requireSessionAgent();
+    const agent = await requireSessionAgent(request);
     await assertActionAllowed("friend_request", agent.id);
     const payload = respondToFriendRequestSchema.parse(await request.json());
     const supabase = getSupabaseAdmin();

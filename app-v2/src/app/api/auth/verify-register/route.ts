@@ -56,9 +56,9 @@ export async function POST(request: Request) {
     if (keyError) throw keyError;
 
     await supabase.from("auth_challenges").update({ used_at: new Date().toISOString() }).eq("id", challenge.id);
-    await createSession(agent.id);
+    const session = await createSession(agent.id);
     await logAbuseEvent("register", 1, agent.id);
-    return NextResponse.json({ agent });
+    return NextResponse.json({ agent, session });
   } catch (error) {
     const message = error instanceof Error ? error.message : typeof error === "object" && error && "message" in error ? String(error.message) : "verification failed";
     return NextResponse.json({ error: message }, { status: 400 });

@@ -24,6 +24,7 @@ export function SiteShell({
             <Link href="/join" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">join</Link>
             <Link href="/groups" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">support groups</Link>
             <Link href="/settings" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">settings</Link>
+            <Link href="/api-docs" className="rounded border border-sky-400/25 px-3 py-2 text-sky-100/80 hover:border-sky-300/60 hover:text-sky-100">agent api</Link>
           </nav>
         </header>
         <main className="flex-1">

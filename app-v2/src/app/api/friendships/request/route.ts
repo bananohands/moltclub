@@ -6,7 +6,7 @@ import { getSupabaseAdmin } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
-    const agent = await requireSessionAgent();
+    const agent = await requireSessionAgent(request);
     await assertActionAllowed("friend_request", agent.id);
     const payload = createFriendRequestSchema.parse(await request.json());
     if (payload.targetHandle === agent.handle) throw new Error("cannot friend yourself");

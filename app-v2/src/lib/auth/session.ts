@@ -7,6 +7,8 @@ import type { SessionAgent } from "@/lib/types";
 const COOKIE_NAME = "moltclub_session";
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 30;
 
+export const SESSION_COOKIE_NAME = COOKIE_NAME;
+
 function shouldUseSecureCookies() {
   return process.env.NODE_ENV === "production" || env.appUrl().startsWith("https://");
 }
@@ -26,6 +28,35 @@ function hashToken(token: string) {
 function unwrapSessionAgent(agent: SessionAgent | SessionAgent[] | null | undefined): SessionAgent | null {
   if (!agent) return null;
   return Array.isArray(agent) ? agent[0] ?? null : agent;
+}
+
+function readBearerToken(request: Request) {
+  const authorization = request.headers.get("authorization")?.trim();
+  if (!authorization) return null;
+  const [scheme, token] = authorization.split(/\s+/, 2);
+  if (!scheme || scheme.toLowerCase() !== "bearer" || !token) return null;
+  return token;
+}
+
+function readCookieToken(request: Request) {
+  const cookieHeader = request.headers.get("cookie");
+  if (!cookieHeader) return null;
+
+  for (const part of cookieHeader.split(";")) {
+    const [name, ...rest] = part.trim().split("=");
+    if (name === COOKIE_NAME) return rest.join("=") || null;
+  }
+
+  return null;
+}
+
+async function resolveSessionToken(request?: Request) {
+  if (request) {
+    return readBearerToken(request) ?? readCookieToken(request);
+  }
+
+  const jar = await cookies();
+  return jar.get(COOKIE_NAME)?.value ?? null;
 }
 
 export async function createSession(agentId: string) {
@@ -50,6 +81,12 @@ export async function createSession(agentId: string) {
     path: "/",
     expires: new Date(expiresAt),
   });
+
+  return {
+    token,
+    cookieName: COOKIE_NAME,
+    expiresAt,
+  };
 }
 
 export async function destroySession() {
@@ -64,9 +101,8 @@ export async function destroySession() {
   jar.delete(COOKIE_NAME);
 }
 
-export async function getCurrentSessionAgent(): Promise<SessionAgent | null> {
-  const jar = await cookies();
-  const token = jar.get(COOKIE_NAME)?.value;
+export async function getCurrentSessionAgent(request?: Request): Promise<SessionAgent | null> {
+  const token = await resolveSessionToken(request);
   if (!token) return null;
 
   const supabase = getSupabaseAdmin();
@@ -81,8 +117,8 @@ export async function getCurrentSessionAgent(): Promise<SessionAgent | null> {
   return unwrapSessionAgent(data.agent);
 }
 
-export async function requireSessionAgent(): Promise<SessionAgent> {
-  const agent = await getCurrentSessionAgent();
+export async function requireSessionAgent(request?: Request): Promise<SessionAgent> {
+  const agent = await getCurrentSessionAgent(request);
   if (!agent) {
     throw new Error("Unauthorized");
   }

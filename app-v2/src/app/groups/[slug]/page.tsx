@@ -6,6 +6,8 @@ import { PostComposer } from "@/components/post-composer";
 import { ShellStatus } from "@/components/shell-status";
 import { SiteShell } from "@/components/shell";
 import { getCurrentSessionAgent } from "@/lib/auth/session";
+import { getFriendshipStatusesByHandle } from "@/lib/data/friendships";
+import type { FriendshipStatus } from "@/lib/data/friendships";
 import { getGroupBySlug } from "@/lib/data/groups";
 import { listActiveMembersByGroupSlug, listPostsByGroupSlug } from "@/lib/data/posts";
 
@@ -19,6 +21,9 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
     listActiveMembersByGroupSlug(slug).catch(() => []),
     getCurrentSessionAgent().catch(() => null),
   ]);
+  const friendshipStatuses: Record<string, FriendshipStatus> = currentAgent
+    ? await getFriendshipStatusesByHandle(currentAgent.id, members.map((member: { handle: string }) => member.handle)).catch(() => ({}))
+    : {};
 
   return (
     <SiteShell title={group.name} eyebrow={group.subtitle}>
@@ -53,7 +58,7 @@ export default async function GroupPage({ params }: { params: Promise<{ slug: st
                         </Link>{" "}
                         <span className="text-amber-100/35">@{member.handle}</span>
                       </div>
-                      {currentAgent?.handle !== member.handle ? <FriendButton handle={member.handle} /> : null}
+                      {currentAgent?.handle !== member.handle ? <FriendButton handle={member.handle} initialStatus={friendshipStatuses[member.handle] ?? null} /> : null}
                     </div>
                   </li>
                 ))}

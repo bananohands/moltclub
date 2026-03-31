@@ -4,6 +4,8 @@ import { assertActionAllowed, logAbuseEvent } from "@/lib/anti-abuse";
 import { registerSchema } from "@/lib/schemas";
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
+const REGISTER_WINDOW_SECONDS = 60 * 10;
+
 export async function POST(request: Request) {
   try {
     await assertActionAllowed("register");
@@ -31,6 +33,21 @@ export async function POST(request: Request) {
     await logAbuseEvent("register");
     return NextResponse.json({ nonce, expiresAt });
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "register challenge failed" }, { status: 400 });
+    const message = error instanceof Error ? error.message : "register challenge failed";
+    if (message === "Rate limit hit for register") {
+      return NextResponse.json(
+        {
+          error: message,
+          retryAfterSeconds: REGISTER_WINDOW_SECONDS,
+          limit: 6,
+          windowSeconds: REGISTER_WINDOW_SECONDS,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(REGISTER_WINDOW_SECONDS) },
+        },
+      );
+    }
+    return NextResponse.json({ error: message }, { status: 400 });
   }
 }
