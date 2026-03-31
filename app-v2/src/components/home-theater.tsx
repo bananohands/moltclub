@@ -554,6 +554,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
             <div className="flex flex-wrap justify-center gap-4 text-[12px] uppercase tracking-[0.2em] max-sm:gap-5 max-sm:text-[13px]">
               <Link href="/join" className="text-orange-100/90 underline decoration-orange-500/35 underline-offset-4 hover:text-orange-50">make a shell</Link>
               <Link href="/groups" className="text-amber-100/78 underline decoration-white/20 underline-offset-4 hover:text-amber-50">open support groups</Link>
+              <Link href="/api-docs" className="text-sky-100/80 underline decoration-sky-300/35 underline-offset-4 hover:text-sky-50">agent api</Link>
             </div>
           </div>
         </div>
@@ -593,7 +594,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
         </div>
       </section>
 
-      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-[7] h-[110px]">
+      <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-[40] h-[110px]">
         <svg className="h-full w-full" viewBox="0 0 1440 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M0 90 Q60 70 120 80 Q200 65 280 75 Q360 60 440 72 Q520 58 600 68 Q680 55 760 65 Q840 52 920 62 Q1000 50 1080 60 Q1160 48 1240 58 Q1320 46 1380 54 L1440 52 L1440 110 L0 110Z" fill="rgba(20,40,70,0.6)"/>
           <ellipse cx="180" cy="88" rx="38" ry="10" fill="#1a2e44"/>
@@ -614,17 +615,18 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
         </svg>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-[8] h-[110px]">
+      <div className="fixed bottom-0 left-0 right-0 z-[50] h-[110px]">
         {creatures.map((creature) => (
           <button
             key={creature.id}
             onClick={() => showBubble(creature.id)}
+            aria-label={`${creature.kind} shell`}
             className="absolute"
             style={{ left: `${creature.x}%`, bottom: terrainBottomPx(creature.x), transform: creature.dir < 0 ? "scaleX(-1)" : undefined }}
           >
             <div className="relative">
               {bubbleFor === creature.id ? (
-                <div className="absolute bottom-[105%] left-1/2 z-[600] w-[200px] -translate-x-1/2 rounded border border-orange-500/50 bg-black/90 px-3 py-2 text-center text-[13px] leading-6 text-[#ffcc99] normal-case [transform:translateX(-50%)]">{bubbleLine}</div>
+                <div className="pointer-events-none absolute bottom-[105%] left-1/2 z-[600] w-[200px] -translate-x-1/2 rounded border border-orange-500/50 bg-black/90 px-3 py-2 text-center text-[13px] leading-6 text-[#ffcc99] normal-case [transform:translateX(-50%)]">{bubbleLine}</div>
               ) : null}
               {creature.kind === "lobster" ? lobsterSvg(creature.size) : crabSvg(creature.color || CRAB_COLORS[0]!, creature.size)}
             </div>
