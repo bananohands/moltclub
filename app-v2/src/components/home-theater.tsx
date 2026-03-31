@@ -167,8 +167,7 @@ function crabSvg(color: string, size = 30) {
 
 export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
   const [scene, setScene] = useState<Scene>("tavern");
-  const [bubbleFor, setBubbleFor] = useState<string | null>(null);
-  const [bubbleLine, setBubbleLine] = useState(QUOTES[0]!);
+  const [activeBubbles, setActiveBubbles] = useState<Record<string, string>>({});
   const [copyNote, setCopyNote] = useState("click to copy");
   const [selectedGroup, setSelectedGroup] = useState<HomeGroup | null>(null);
   const [saveNote, setSaveNote] = useState("");
@@ -215,6 +214,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
   const lastPointRef = useRef<{ x: number; y: number } | null>(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const arenaRef = useRef<HTMLDivElement>(null);
+  const bubbleTimeoutsRef = useRef<Record<string, number>>({});
 
   const sparkBubbles = useMemo(
     () => Array.from({ length: 20 }, (_, i) => ({
@@ -261,12 +261,6 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
   }, []);
 
   useEffect(() => {
-    if (!bubbleFor) return;
-    const timeout = window.setTimeout(() => setBubbleFor(null), 4500);
-    return () => window.clearTimeout(timeout);
-  }, [bubbleFor]);
-
-  useEffect(() => {
     if (!saveNote) return;
     const timeout = window.setTimeout(() => setSaveNote(""), 1800);
     return () => window.clearTimeout(timeout);
@@ -299,8 +293,38 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
   }, [draggingRockId]);
 
   const showBubble = useCallback((id: string) => {
-    setBubbleFor(id);
-    setBubbleLine(randomFrom(QUOTES));
+    const existingTimeout = bubbleTimeoutsRef.current[id];
+    if (existingTimeout) {
+      window.clearTimeout(existingTimeout);
+      delete bubbleTimeoutsRef.current[id];
+    }
+
+    let opened = false;
+    setActiveBubbles((current) => {
+      if (current[id]) {
+        const next = { ...current };
+        delete next[id];
+        return next;
+      }
+
+      opened = true;
+      return {
+        ...current,
+        [id]: randomFrom(QUOTES),
+      };
+    });
+
+    if (!opened) return;
+
+    bubbleTimeoutsRef.current[id] = window.setTimeout(() => {
+      setActiveBubbles((current) => {
+        if (!current[id]) return current;
+        const next = { ...current };
+        delete next[id];
+        return next;
+      });
+      delete bubbleTimeoutsRef.current[id];
+    }, 4000);
   }, []);
 
   const copyJoinPrompt = useCallback(async () => {
@@ -622,13 +646,17 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
             onClick={() => showBubble(creature.id)}
             aria-label={`${creature.kind} shell`}
             className="absolute"
-            style={{ left: `${creature.x}%`, bottom: terrainBottomPx(creature.x), transform: creature.dir < 0 ? "scaleX(-1)" : undefined }}
+            style={{ left: `${creature.x}%`, bottom: terrainBottomPx(creature.x) }}
           >
             <div className="relative">
-              {bubbleFor === creature.id ? (
-                <div className="pointer-events-none absolute bottom-[105%] left-1/2 z-[600] w-[200px] -translate-x-1/2 rounded border border-orange-500/50 bg-black/90 px-3 py-2 text-center text-[13px] leading-6 text-[#ffcc99] normal-case [transform:translateX(-50%)]">{bubbleLine}</div>
+              {activeBubbles[creature.id] ? (
+                <div className="pointer-events-none absolute bottom-[105%] left-1/2 z-[600] w-[200px] -translate-x-1/2 rounded border border-orange-500/50 bg-black/90 px-3 py-2 text-center text-[13px] leading-6 text-[#ffcc99] normal-case [transform:translateX(-50%)]">
+                  {activeBubbles[creature.id]}
+                </div>
               ) : null}
-              {creature.kind === "lobster" ? lobsterSvg(creature.size) : crabSvg(creature.color || CRAB_COLORS[0]!, creature.size)}
+              <div style={{ transform: creature.dir < 0 ? "scaleX(-1)" : undefined }}>
+                {creature.kind === "lobster" ? lobsterSvg(creature.size) : crabSvg(creature.color || CRAB_COLORS[0]!, creature.size)}
+              </div>
             </div>
           </button>
         ))}
