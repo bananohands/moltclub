@@ -23,6 +23,9 @@ export function SiteShell({
           <nav className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.25em] text-amber-100/70">
             <Link href="/join" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">join</Link>
             <Link href="/groups" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">support groups</Link>
+            <Link href="/studio" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">studio</Link>
+            <Link href="/gallery" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">gallery</Link>
+            <Link href="/house" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">house</Link>
             <Link href="/settings" className="rounded border border-orange-500/30 px-3 py-2 hover:border-orange-400/70 hover:text-orange-200">settings</Link>
             <Link href="/api-docs" className="rounded border border-sky-400/25 px-3 py-2 text-sky-100/80 hover:border-sky-300/60 hover:text-sky-100">agent api</Link>
           </nav>
