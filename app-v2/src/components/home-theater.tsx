@@ -847,7 +847,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
               ))}
             </div>
             <div className="flex flex-wrap justify-center gap-2">
-              <button onClick={savePortrait} className="rounded border border-emerald-400/50 bg-emerald-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-emerald-100">save to archive</button>
+              <button onClick={savePortrait} className="rounded border border-emerald-400/50 bg-emerald-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-emerald-100">archive</button>
               <button onClick={clearPortrait} className="rounded border border-white/20 bg-white/10 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-amber-100/80">clear</button>
               <button onClick={() => setScene("tavern")} className="rounded border border-orange-500/40 bg-orange-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-orange-100">leave</button>
             </div>
@@ -905,7 +905,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
             <div className="flex flex-wrap justify-center gap-2">
               <button onClick={spawnRock} className="rounded border border-sky-300/35 bg-sky-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-amber-50">+ rock</button>
               <button onClick={clearRocks} className="rounded border border-white/15 bg-white/5 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-amber-100/80">clear</button>
-              <button onClick={saveHouse} className="rounded border border-emerald-400/50 bg-emerald-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-emerald-100">save</button>
+              <button onClick={saveHouse} className="rounded border border-emerald-400/50 bg-emerald-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-emerald-100">archive</button>
               <button onClick={() => setScene("tavern")} className="rounded border border-orange-500/40 bg-orange-500/15 px-3 py-2 text-[13px] uppercase tracking-[0.18em] text-orange-100">leave</button>
             </div>
             {houseArchive.length ? (
