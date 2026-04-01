@@ -48,6 +48,13 @@ type SavedHouse = {
   items: RockItem[];
 };
 
+type HouseApiRock = {
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+};
+
 const PORTRAIT_KEY = "moltclub.home.portrait.v1";
 const PORTRAIT_ARCHIVE_KEY = "moltclub.home.portrait.archive.v1";
 const HOUSE_KEY = "moltclub.home.house.v1";
@@ -165,12 +172,43 @@ function crabSvg(color: string, size = 30) {
   );
 }
 
+function dataUrlToFile(dataUrl: string, filename: string) {
+  const [header, body] = dataUrl.split(",");
+  if (!header || !body) throw new Error("invalid portrait data");
+  const mime = header.match(/data:(.*?);base64/)?.[1] ?? "image/png";
+  const bytes = Uint8Array.from(atob(body), (char) => char.charCodeAt(0));
+  return new File([bytes], filename, { type: mime });
+}
+
+function mapHouseToApiRocks(items: RockItem[]): HouseApiRock[] {
+  return items.map((rock) => ({
+    x: Math.round(rock.x * 10) / 10,
+    y: Math.round(rock.y * 10) / 10,
+    size: Math.max(1, Math.round((rock.width + rock.height) / 2)),
+    color: rock.color,
+  }));
+}
+
+function mapApiRocksToHouseItems(rocks: HouseApiRock[]): RockItem[] {
+  return rocks.map((rock, index) => ({
+    id: `remote-rock-${index}-${rock.x}-${rock.y}`,
+    shape: "oval",
+    x: rock.x,
+    y: rock.y,
+    width: Math.max(14, Math.round(rock.size)),
+    height: Math.max(10, Math.round(rock.size * 0.72)),
+    color: rock.color,
+    rotation: 0,
+  }));
+}
+
 export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeGroup[]; initialScene?: Scene }) {
   const [scene, setScene] = useState<Scene>(initialScene);
   const [activeBubbles, setActiveBubbles] = useState<Record<string, string>>({});
   const [copyNote, setCopyNote] = useState("click to copy");
   const [selectedGroup, setSelectedGroup] = useState<HomeGroup | null>(null);
   const [saveNote, setSaveNote] = useState("");
+  const [isAuthed, setIsAuthed] = useState(false);
   const [brushColor, setBrushColor] = useState("#3498db");
   const [brushSize, setBrushSize] = useState(5);
   const [portraitSaved, setPortraitSaved] = useState<string | null>(() => (typeof window === "undefined" ? null : localStorage.getItem(PORTRAIT_KEY)));
@@ -265,6 +303,53 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     const timeout = window.setTimeout(() => setSaveNote(""), 1800);
     return () => window.clearTimeout(timeout);
   }, [saveNote]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function hydrateRemoteArt() {
+      try {
+        const [agentRes, portraitRes, houseRes] = await Promise.all([
+          fetch("/api/agents/me", { cache: "no-store" }),
+          fetch("/api/portraits/me", { cache: "no-store" }),
+          fetch("/api/houses", { cache: "no-store" }),
+        ]);
+
+        if (agentRes.ok && !cancelled) setIsAuthed(true);
+        if (!portraitRes.ok || !houseRes.ok || cancelled) return;
+
+        const portraitData = await portraitRes.json();
+        const houseData = await houseRes.json();
+
+        if (portraitData.current?.url) {
+          setPortraitSaved((current) => current ?? portraitData.current.url);
+        }
+
+        if (Array.isArray(portraitData.history) && portraitData.history.length) {
+          setPortraitArchive((current) => current.length ? current : portraitData.history.map((entry: { id: string; url: string; caption?: string | null }) => ({
+            id: entry.id,
+            title: entry.caption || "portrait",
+            dataUrl: entry.url,
+          })));
+        }
+
+        if (Array.isArray(houseData.houses) && houseData.houses.length) {
+          setHouseArchive((current) => current.length ? current : houseData.houses.map((entry: { id: string; rocks: HouseApiRock[]; createdAt: string }) => ({
+            id: entry.id,
+            title: new Date(entry.createdAt).toLocaleString(),
+            items: mapApiRocksToHouseItems(entry.rocks),
+          })));
+        }
+      } catch {
+        return;
+      }
+    }
+
+    hydrateRemoteArt();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     if (!draggingRockId) return;
@@ -387,7 +472,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     lastPointRef.current = null;
   }, []);
 
-  const savePortrait = useCallback(() => {
+  const savePortrait = useCallback(async () => {
     const data = canvasRef.current?.toDataURL("image/png") ?? null;
     if (!data) return;
     localStorage.setItem(PORTRAIT_KEY, data);
@@ -397,8 +482,23 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
       localStorage.setItem(PORTRAIT_ARCHIVE_KEY, JSON.stringify(next));
       return next;
     });
-    setSaveNote("portrait saved to archive");
-  }, []);
+
+    if (!isAuthed) {
+      setSaveNote("portrait saved locally");
+      return;
+    }
+
+    try {
+      const body = new FormData();
+      body.set("portrait", dataUrlToFile(data, `portrait-${Date.now()}.png`));
+      const res = await fetch("/api/portraits", { method: "POST", body });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.error || "portrait sync failed");
+      setSaveNote("portrait saved locally + synced");
+    } catch {
+      setSaveNote("portrait saved locally");
+    }
+  }, [isAuthed]);
 
   const clearPortrait = useCallback(() => {
     localStorage.removeItem(PORTRAIT_KEY);
@@ -433,15 +533,32 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     setSaveNote("lot cleared");
   }, []);
 
-  const saveHouse = useCallback(() => {
+  const saveHouse = useCallback(async () => {
     localStorage.setItem(HOUSE_KEY, JSON.stringify(rocks));
     setHouseArchive((current) => {
       const next = [{ id: `house-${Date.now()}`, title: `house ${current.length + 1}`, items: rocks }, ...current].slice(0, 6);
       localStorage.setItem(HOUSE_ARCHIVE_KEY, JSON.stringify(next));
       return next;
     });
-    setSaveNote("house saved to archive");
-  }, [rocks]);
+
+    if (!isAuthed) {
+      setSaveNote("house saved locally");
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/houses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rocks: mapHouseToApiRocks(rocks) }),
+      });
+      const payload = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(payload.error || "house sync failed");
+      setSaveNote("house saved locally + synced");
+    } catch {
+      setSaveNote("house saved locally");
+    }
+  }, [isAuthed, rocks]);
 
   const rockScore = useMemo(() => `ROCKS PLACED: ${rocks.length}`, [rocks.length]);
 
