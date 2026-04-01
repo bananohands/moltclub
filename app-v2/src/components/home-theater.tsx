@@ -495,7 +495,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
             />
           </div>
 
-          <Link href="/studio" className="group relative z-10 mr-[-2px] mt-3 block w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(8px)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
+          <button onClick={() => setScene("paint")} className="group relative z-10 mr-[-2px] mt-3 w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(8px)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
             <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
             <div className="absolute left-0 right-[-18px] top-[-10px] h-[10px] bg-[linear-gradient(90deg,#142030,#0a1820)] [clip-path:polygon(0_100%,100%_60%,100%_0%,0_40%)]" />
             <div className="absolute bottom-0 right-[-18px] top-0 w-[18px] bg-[linear-gradient(180deg,#060f1a,#030810)] [clip-path:polygon(0_0,100%_8%,100%_100%,0_100%)]" />
@@ -508,7 +508,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
               <div className="mx-auto h-[34px] w-6 rounded-t border border-sky-300/25 bg-[linear-gradient(180deg,#0c1828,#060e18)] group-hover:border-amber-100/80" />
             </div>
             <div className="h-[5px] border-t border-sky-300/15 bg-[linear-gradient(90deg,#0a1520,#1a2d3e,#0a1520)]" />
-          </Link>
+          </button>
 
           <div className="relative z-20 w-[clamp(220px,33vw,320px)] [transform-style:preserve-3d]">
             <div className="absolute inset-x-[8%] top-[18%] h-20 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.08),transparent_70%)] blur-lg" />
@@ -549,7 +549,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
             <div className="h-[7px] border-t border-sky-300/20 bg-[linear-gradient(90deg,#0a1520,#1e3040,#0a1520)]" />
           </div>
 
-          <Link href="/house" className="group relative z-10 ml-[-2px] mt-1 block w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(2px)_scaleX(-1)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
+          <button onClick={() => setScene("stack")} className="group relative z-10 ml-[-2px] mt-1 w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(2px)_scaleX(-1)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
             <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block [transform:translateX(-50%)_scaleX(-1)]">enter →</div>
             <div className="absolute left-0 right-[-18px] top-[-10px] h-[10px] bg-[linear-gradient(90deg,#142030,#0a1820)] [clip-path:polygon(0_100%,100%_60%,100%_0%,0_40%)]" />
             <div className="absolute bottom-0 right-[-18px] top-0 w-[18px] bg-[linear-gradient(180deg,#060f1a,#030810)] [clip-path:polygon(0_0,100%_8%,100%_100%,0_100%)]" />
@@ -562,7 +562,7 @@ export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
               <div className="mx-auto h-[34px] w-6 rounded-t border border-sky-300/25 bg-[linear-gradient(180deg,#0c1828,#060e18)] group-hover:border-amber-100/80" />
             </div>
             <div className="h-[5px] border-t border-sky-300/15 bg-[linear-gradient(90deg,#0a1520,#1a2d3e,#0a1520)]" />
-          </Link>
+          </button>
         </div>
 
         <div className="pointer-events-none relative mt-1 h-10 w-full max-w-[620px]">
