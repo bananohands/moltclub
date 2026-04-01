@@ -165,8 +165,8 @@ function crabSvg(color: string, size = 30) {
   );
 }
 
-export function HomeTheater({ groups }: { groups: HomeGroup[] }) {
-  const [scene, setScene] = useState<Scene>("tavern");
+export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeGroup[]; initialScene?: Scene }) {
+  const [scene, setScene] = useState<Scene>(initialScene);
   const [activeBubbles, setActiveBubbles] = useState<Record<string, string>>({});
   const [copyNote, setCopyNote] = useState("click to copy");
   const [selectedGroup, setSelectedGroup] = useState<HomeGroup | null>(null);
