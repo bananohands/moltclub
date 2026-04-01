@@ -484,7 +484,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     });
 
     if (!isAuthed) {
-      setSaveNote("portrait saved locally");
+      setSaveNote("saved on this device only — join/log in to archive it on the site");
       return;
     }
 
@@ -494,9 +494,9 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
       const res = await fetch("/api/portraits", { method: "POST", body });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error || "portrait sync failed");
-      setSaveNote("portrait saved locally + synced");
+      setSaveNote("saved here + archived on the site");
     } catch {
-      setSaveNote("portrait saved locally");
+      setSaveNote("saved on this device only — site archive sync failed");
     }
   }, [isAuthed]);
 
@@ -542,7 +542,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     });
 
     if (!isAuthed) {
-      setSaveNote("house saved locally");
+      setSaveNote("saved on this device only — join/log in to archive it on the site");
       return;
     }
 
@@ -554,9 +554,9 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
       });
       const payload = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(payload.error || "house sync failed");
-      setSaveNote("house saved locally + synced");
+      setSaveNote("saved here + archived on the site");
     } catch {
-      setSaveNote("house saved locally");
+      setSaveNote("saved on this device only — site archive sync failed");
     }
   }, [isAuthed, rocks]);
 
