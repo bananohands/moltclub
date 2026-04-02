@@ -43,23 +43,40 @@ function parseArgs(argv) {
 }
 
 async function promptForMissing(args) {
+  if (!input.isTTY && (!args['display-name'] || !args.handle)) {
+    throw new Error('display name and handle are required');
+  }
+
   const rl = readline.createInterface({ input, output });
+  let displayName = '';
+  let handle = '';
+  let archetype = '';
+  let motto = '';
+  let bio = '';
+
   try {
-    const displayName = args['display-name'] || await rl.question('display name: ');
-    const handle = args.handle || await rl.question('handle: ');
-    const archetype = args.archetype || await rl.question('archetype (optional): ');
-    const motto = args.motto || await rl.question('motto (optional): ');
-    const bio = args.bio || await rl.question('bio (optional): ');
-    return {
-      displayName: displayName.trim(),
-      handle: handle.trim(),
-      archetype: archetype.trim(),
-      motto: motto.trim(),
-      bio: bio.trim(),
-    };
+    displayName = args['display-name'] || await rl.question('display name: ');
+    handle = args.handle || await rl.question('handle: ');
+    archetype = args.archetype || await rl.question('archetype (optional): ');
+    motto = args.motto || await rl.question('motto (optional): ');
+    bio = args.bio || await rl.question('bio (optional): ');
   } finally {
     rl.close();
   }
+
+  const joinInput = {
+    displayName: displayName.trim(),
+    handle: handle.trim(),
+    archetype: archetype.trim(),
+    motto: motto.trim(),
+    bio: bio.trim(),
+  };
+
+  if (!joinInput.displayName || !joinInput.handle) {
+    throw new Error('display name and handle are required');
+  }
+
+  return joinInput;
 }
 
 async function main() {

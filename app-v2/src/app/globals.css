@@ -60,3 +60,34 @@ body {
   0%, 100% { margin-top: 0; filter: drop-shadow(0 0 12px rgba(56,189,248,0.18)); }
   50% { margin-top: -10px; filter: drop-shadow(0 0 18px rgba(125,211,252,0.3)); }
 }
+
+@keyframes tide-sway {
+  0%, 100% { transform: translate3d(-3%, 0, 0) scaleX(1.02); }
+  50% { transform: translate3d(3%, 1.5%, 0) scaleX(0.98); }
+}
+
+@keyframes fish-drift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(16px, -6px, 0); }
+  50% { transform: translate3d(34px, 4px, 0); }
+  75% { transform: translate3d(12px, 10px, 0); }
+}
+
+@keyframes kelp-sway {
+  0%, 100% { transform: rotate(-4deg) translateY(0); transform-origin: bottom center; }
+  50% { transform: rotate(5deg) translateY(-3px); transform-origin: bottom center; }
+}
+
+@keyframes shadow-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(24px, -8px, 0) scale(1.02); }
+}
+
+@keyframes leviathan-pass {
+  0% { transform: translate3d(0, 0, 0) scale(0.98); opacity: 0; }
+  6% { opacity: 0.12; }
+  20% { opacity: 0.22; }
+  50% { transform: translate3d(72vw, -1.5vh, 0) scale(1); opacity: 0.22; }
+  78% { opacity: 0.12; }
+  100% { transform: translate3d(148vw, -4vh, 0) scale(1.04); opacity: 0; }
+}

@@ -25,6 +25,31 @@ type Creature = {
   color?: string;
 };
 
+type OceanFish = {
+  id: string;
+  left: string;
+  top: string;
+  size: number;
+  dir: 1 | -1;
+  duration: string;
+  delay: string;
+  opacity: number;
+  color: string;
+  depth: number;
+  drift: number;
+};
+
+type DeepSilhouette = {
+  id: string;
+  left: string;
+  top: string;
+  width: number;
+  height: number;
+  duration: string;
+  delay: string;
+  opacity: number;
+};
+
 type SavedPortrait = {
   id: string;
   title: string;
@@ -175,6 +200,30 @@ function crabSvg(color: string, size = 30) {
   );
 }
 
+function fishSvg(color: string, size = 44) {
+  return (
+    <svg width={size} height={Math.round(size * 0.52)} viewBox="0 0 100 52">
+      <path d="M16 26C26 11 46 7 63 12C71 14 79 18 87 26C79 34 71 38 63 40C46 45 26 41 16 26Z" fill={color} />
+      <path d="M84 26L100 12V40L84 26Z" fill={color} opacity="0.88" />
+      <ellipse cx="46" cy="25" rx="22" ry="11" fill="rgba(255,255,255,0.08)" />
+      <circle cx="30" cy="22" r="2.4" fill="#07131b" />
+      <path d="M42 16L56 9L58 20Z" fill={color} opacity="0.72" />
+      <path d="M46 33L61 41L58 28Z" fill={color} opacity="0.68" />
+    </svg>
+  );
+}
+
+function deepCreatureSvg(width: number, height: number) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 320 120" fill="none">
+      <path d="M18 69C43 44 86 32 138 36C182 39 212 54 234 61C255 66 275 64 302 43C293 64 292 77 304 93C277 79 256 79 236 85C213 92 179 107 132 105C84 103 44 92 18 69Z" fill="rgba(7,18,28,0.72)" />
+      <path d="M226 62C243 50 269 43 302 43" stroke="rgba(82,146,170,0.18)" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="92" cy="60" r="3.5" fill="rgba(113,183,199,0.18)" />
+      <path d="M28 69C16 63 8 53 3 42" stroke="rgba(7,18,28,0.62)" strokeWidth="8" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function dataUrlToFile(dataUrl: string, filename: string) {
   const [header, body] = dataUrl.split(",");
   if (!header || !body) throw new Error("invalid portrait data");
@@ -249,6 +298,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     { id: "crab-1", kind: "crab", x: 26, dir: 1, speed: 0.28, size: 32, color: CRAB_COLORS[0] },
     { id: "crab-2", kind: "crab", x: 64, dir: -1, speed: 0.25, size: 38, color: CRAB_COLORS[1] },
   ]);
+  const [pointer, setPointer] = useState({ x: 0.5, y: 0.4, active: false });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const paintingRef = useRef(false);
@@ -258,18 +308,68 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
   const bubbleTimeoutsRef = useRef<Record<string, number>>({});
 
   const sparkBubbles = useMemo(
-    () => Array.from({ length: 20 }, (_, i) => ({
+    () => Array.from({ length: 9 }, (_, i) => ({
       id: i,
-      left: `${(i * 17) % 100}%`,
-      size: 3 + ((i * 5) % 9),
-      delay: `${(i * 0.47).toFixed(2)}s`,
-      duration: `${7 + ((i * 3) % 9)}s`,
+      left: `${8 + ((i * 11) % 84)}%`,
+      size: 4 + ((i * 3) % 8),
+      delay: `${(i * 0.63).toFixed(2)}s`,
+      duration: `${11 + ((i * 5) % 10)}s`,
     })),
     [],
   );
 
   const caustics = useMemo(
     () => Array.from({ length: 6 }, (_, i) => ({ id: i, size: 180 + i * 90, top: `${8 + i * 14}%`, left: `${8 + i * 16}%`, duration: `${5 + i * 1.4}s`, delay: `${i * 0.7}s` })),
+    [],
+  );
+
+  const waveBands = useMemo(
+    () => Array.from({ length: 6 }, (_, i) => ({
+      id: i,
+      top: `${8 + i * 11}%`,
+      height: `${14 + i * 2.5}%`,
+      duration: `${16 + i * 3.5}s`,
+      delay: `${i * 1.35}s`,
+      opacity: 0.2 - i * 0.02,
+      blur: `${12 + i * 4}px`,
+    })),
+    [],
+  );
+
+  const kelpStrands = useMemo(
+    () => Array.from({ length: 10 }, (_, i) => ({
+      id: i,
+      left: `${4 + i * 9.6}%`,
+      height: 54 + (i % 4) * 14,
+      width: 8 + (i % 3),
+      duration: `${7 + (i % 4) * 1.3}s`,
+      delay: `${i * 0.35}s`,
+      opacity: 0.18 + (i % 3) * 0.05,
+    })),
+    [],
+  );
+
+  const fishSchools = useMemo<OceanFish[]>(
+    () => [
+      { id: "fish-1", left: "5%", top: "18%", size: 52, dir: 1, duration: "28s", delay: "0s", opacity: 0.34, color: "#84c5d8", depth: 0.9, drift: 34 },
+      { id: "fish-2", left: "13%", top: "24%", size: 40, dir: 1, duration: "30s", delay: "-8s", opacity: 0.26, color: "#78afc2", depth: 0.75, drift: 26 },
+      { id: "fish-3", left: "21%", top: "16%", size: 58, dir: 1, duration: "32s", delay: "-15s", opacity: 0.28, color: "#7fc0cf", depth: 1, drift: 38 },
+      { id: "fish-4", left: "66%", top: "26%", size: 46, dir: -1, duration: "35s", delay: "-6s", opacity: 0.24, color: "#88d1cf", depth: 0.82, drift: 32 },
+      { id: "fish-5", left: "75%", top: "22%", size: 36, dir: -1, duration: "33s", delay: "-18s", opacity: 0.22, color: "#79bcb4", depth: 0.7, drift: 24 },
+      { id: "fish-6", left: "83%", top: "30%", size: 54, dir: -1, duration: "37s", delay: "-10s", opacity: 0.28, color: "#92cad8", depth: 0.95, drift: 36 },
+      { id: "fish-7", left: "10%", top: "42%", size: 34, dir: 1, duration: "42s", delay: "-22s", opacity: 0.16, color: "#74a8bc", depth: 0.55, drift: 18 },
+      { id: "fish-8", left: "72%", top: "46%", size: 30, dir: -1, duration: "46s", delay: "-14s", opacity: 0.16, color: "#6e9fb6", depth: 0.5, drift: 16 },
+      { id: "fish-9", left: "33%", top: "33%", size: 44, dir: 1, duration: "39s", delay: "-5s", opacity: 0.22, color: "#9ed7de", depth: 0.78, drift: 28 },
+      { id: "fish-10", left: "57%", top: "38%", size: 32, dir: -1, duration: "44s", delay: "-11s", opacity: 0.18, color: "#7fb6c7", depth: 0.6, drift: 20 },
+    ],
+    [],
+  );
+
+  const deepSilhouettes = useMemo<DeepSilhouette[]>(
+    () => [
+      { id: "shadow-1", left: "8%", top: "54%", width: 220, height: 72, duration: "42s", delay: "-12s", opacity: 0.18 },
+      { id: "shadow-2", left: "68%", top: "58%", width: 180, height: 60, duration: "48s", delay: "-26s", opacity: 0.14 },
+    ],
     [],
   );
 
@@ -299,6 +399,26 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     }, 130);
 
     return () => window.clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    const updatePointer = (event: MouseEvent) => {
+      setPointer({
+        x: event.clientX / window.innerWidth,
+        y: event.clientY / window.innerHeight,
+        active: true,
+      });
+    };
+
+    const resetPointer = () => setPointer((current) => ({ ...current, active: false }));
+
+    window.addEventListener("mousemove", updatePointer);
+    window.addEventListener("mouseleave", resetPointer);
+
+    return () => {
+      window.removeEventListener("mousemove", updatePointer);
+      window.removeEventListener("mouseleave", resetPointer);
+    };
   }, []);
 
   useEffect(() => {
@@ -567,136 +687,195 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-white" style={{ fontFamily: "'Courier New', monospace" }}>
-      <div className="fixed inset-0 -z-20 bg-[linear-gradient(180deg,#010a14_0%,#021020_40%,#041830_100%)]" />
+      <div className="pointer-events-none fixed inset-0 -z-20 overflow-hidden bg-[linear-gradient(180deg,#03111d_0%,#082038_24%,#0e3550_48%,#0b2338_72%,#040b14_100%)]">
+        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1440 1200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="seaGlow" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(162,225,255,0.24)" />
+              <stop offset="38%" stopColor="rgba(82,156,205,0.18)" />
+              <stop offset="100%" stopColor="rgba(6,15,24,0)" />
+            </linearGradient>
+            <linearGradient id="trenchBody" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(91,162,205,0.32)" />
+              <stop offset="55%" stopColor="rgba(34,86,122,0.22)" />
+              <stop offset="100%" stopColor="rgba(5,14,22,0.04)" />
+            </linearGradient>
+            <radialGradient id="waterBloom" cx="50%" cy="20%" r="60%">
+              <stop offset="0%" stopColor="rgba(156,228,255,0.22)" />
+              <stop offset="45%" stopColor="rgba(78,151,196,0.12)" />
+              <stop offset="100%" stopColor="rgba(5,18,30,0)" />
+            </radialGradient>
+          </defs>
+          <rect width="1440" height="1200" fill="url(#waterBloom)" />
+          <path d="M0 332C90 298 170 292 254 304C338 316 420 354 500 348C582 342 648 286 736 284C840 282 912 354 1002 364C1092 374 1180 340 1262 320C1332 302 1388 300 1440 312V520H0V332Z" fill="url(#trenchBody)" />
+          <path d="M0 310C92 276 174 272 256 286C338 300 420 336 502 330C586 324 648 270 740 268C842 266 914 336 1004 346C1094 356 1182 320 1264 298C1334 280 1390 278 1440 290" stroke="rgba(191,241,255,0.68)" strokeWidth="6" fill="none" />
+          <path d="M0 352C92 326 176 324 258 338C340 352 424 388 504 382C588 376 652 326 742 326C842 326 918 392 1004 402C1090 412 1178 382 1260 360C1330 342 1388 340 1440 350" stroke="rgba(141,214,242,0.42)" strokeWidth="4" fill="none" />
+          <ellipse cx="420" cy="246" rx="360" ry="140" fill="url(#seaGlow)" />
+          <ellipse cx="1080" cy="224" rx="300" ry="120" fill="url(#seaGlow)" opacity="0.7" />
+          <ellipse cx="760" cy="438" rx="620" ry="180" fill="rgba(10,38,58,0.28)" />
+          <path d="M0 760C110 712 230 700 344 724C450 746 544 806 654 804C760 802 852 736 960 734C1076 732 1174 796 1286 808C1348 814 1400 810 1440 798V1200H0V760Z" fill="rgba(4,12,20,0.78)" />
+          <path d="M0 794C112 762 232 756 346 776C458 796 544 850 654 848C764 846 854 784 964 784C1076 784 1176 846 1286 856C1350 862 1402 858 1440 848" stroke="rgba(66,128,166,0.18)" strokeWidth="3" fill="none" />
+        </svg>
+      </div>
+      {waveBands.map((band) => (
+        <div
+          key={band.id}
+          className="pointer-events-none fixed left-[-8%] right-[-8%] -z-[19] rounded-[999px] bg-[linear-gradient(90deg,transparent_0%,rgba(120,185,210,0.14)_18%,rgba(101,157,194,0.22)_50%,rgba(120,185,210,0.12)_82%,transparent_100%)] animate-[tide-sway_var(--dur)_ease-in-out_infinite]"
+          style={{ top: band.top, height: band.height, opacity: band.opacity, filter: `blur(${band.blur})`, animationDelay: band.delay, ["--dur" as string]: band.duration }}
+        />
+      ))}
       {caustics.map((item) => (
         <div
           key={item.id}
-          className="pointer-events-none fixed -z-10 rounded-full bg-[radial-gradient(circle,rgba(40,130,255,0.07)_0%,transparent_70%)] animate-[caustic_var(--dur)_ease-in-out_infinite]"
+          className="pointer-events-none fixed -z-10 rounded-full bg-[radial-gradient(circle,rgba(88,180,255,0.11)_0%,rgba(59,134,210,0.08)_35%,transparent_72%)] mix-blend-screen animate-[caustic_var(--dur)_ease-in-out_infinite]"
           style={{ width: item.size, height: item.size, top: item.top, left: item.left, animationDelay: item.delay, ["--dur" as string]: item.duration }}
         />
       ))}
+      {deepSilhouettes.map((shadow, index) => (
+        <div
+          key={shadow.id}
+          className="pointer-events-none fixed -z-[9] animate-[shadow-drift_var(--dur)_ease-in-out_infinite]"
+          style={{ left: shadow.left, top: shadow.top, opacity: shadow.opacity, filter: "blur(1px)", animationDelay: shadow.delay, ["--dur" as string]: shadow.duration }}
+        >
+          <div style={{ transform: `translateX(${pointer.active ? (pointer.x - 0.5) * (index === 0 ? -28 : 20) : 0}px)` }}>
+            {deepCreatureSvg(shadow.width, shadow.height)}
+          </div>
+        </div>
+      ))}
+      <div className="pointer-events-none fixed left-[-24%] top-[60%] -z-[8] opacity-[0.22] animate-[leviathan-pass_72s_linear_infinite]">
+        {deepCreatureSvg(360, 130)}
+      </div>
+      {fishSchools.map((fish) => {
+        const offsetX = pointer.active ? (pointer.x - 0.5) * fish.drift * fish.depth * (fish.dir > 0 ? -1 : 1) : 0;
+        const offsetY = pointer.active ? (pointer.y - 0.45) * 18 * fish.depth : 0;
+        return (
+          <div
+            key={fish.id}
+            className="pointer-events-none fixed -z-[8] animate-[fish-drift_var(--dur)_ease-in-out_infinite]"
+            style={{ left: fish.left, top: fish.top, opacity: fish.opacity, animationDelay: fish.delay, ["--dur" as string]: fish.duration }}
+          >
+            <div style={{ transform: `translate3d(${offsetX}px, ${offsetY}px, 0) ${fish.dir < 0 ? "scaleX(-1)" : "scaleX(1)"}` }}>
+              {fishSvg(fish.color, fish.size)}
+            </div>
+          </div>
+        );
+      })}
       {sparkBubbles.map((bubble) => (
         <div
           key={bubble.id}
-          className="pointer-events-none fixed bottom-[-20px] rounded-full border border-sky-300/25 bg-sky-200/5 animate-[rise_var(--dur)_linear_infinite]"
+          className="pointer-events-none fixed bottom-[-20px] -z-[8] rounded-full border border-sky-300/20 bg-sky-200/5 shadow-[0_0_16px_rgba(120,200,220,0.08)] animate-[rise_var(--dur)_linear_infinite]"
           style={{ left: bubble.left, width: bubble.size, height: bubble.size, animationDelay: bubble.delay, ["--dur" as string]: bubble.duration }}
         />
       ))}
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 -z-[7] h-[30vh] bg-[linear-gradient(180deg,transparent_0%,rgba(4,12,20,0.12)_10%,rgba(3,12,20,0.56)_48%,rgba(2,6,12,0.95)_100%)]" />
+      <div className="pointer-events-none fixed inset-x-0 bottom-[92px] -z-[7] h-[90px] bg-[radial-gradient(ellipse_at_center,rgba(76,140,168,0.14),transparent_72%)]" />
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 -z-[6] h-[132px]">
+        {kelpStrands.map((strand) => (
+          <div
+            key={strand.id}
+            className="absolute bottom-0 rounded-t-full bg-[linear-gradient(180deg,rgba(60,110,90,0.03),rgba(54,122,104,0.55)_55%,rgba(16,42,34,0.95)_100%)] animate-[kelp-sway_var(--dur)_ease-in-out_infinite]"
+            style={{ left: strand.left, width: strand.width, height: strand.height, opacity: strand.opacity, animationDelay: strand.delay, ["--dur" as string]: strand.duration }}
+          />
+        ))}
+      </div>
 
       <main id="main" className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 pb-[130px] pt-10 max-sm:px-4 max-sm:pb-[118px]">
-        <div className="relative mb-4 text-center">
-          <div className="pointer-events-none absolute left-1/2 top-[-36px] h-9 w-[2px] -translate-x-[72px] bg-[linear-gradient(180deg,rgba(130,160,200,0.7),rgba(130,160,200,0.1))]" />
-          <div className="pointer-events-none absolute left-1/2 top-[-36px] h-9 w-[2px] translate-x-[72px] bg-[linear-gradient(180deg,rgba(130,160,200,0.7),rgba(130,160,200,0.1))]" />
-          <div className="pointer-events-none absolute left-1/2 top-[-40px] h-2 w-2 -translate-x-[72px] rounded-full border border-sky-200/40 bg-slate-900/80" />
-          <div className="pointer-events-none absolute left-1/2 top-[-40px] h-2 w-2 translate-x-[72px] rounded-full border border-sky-200/40 bg-slate-900/80" />
-          <div className="inline-block rounded-[4px] border-2 border-orange-500/60 bg-black/75 px-10 py-5 text-center backdrop-blur-sm animate-[sign-glow_3s_ease-in-out_infinite] shadow-[0_0_60px_rgba(255,80,0,0.18)]">
-            <div className="mb-1 text-[11px] uppercase tracking-[0.45em] text-orange-300/65">EST. MMXXVI</div>
-            <span className="block animate-[flicker_6s_infinite] text-[clamp(42px,8vw,90px)] font-black uppercase tracking-[0.2em] text-[#ff4400] [text-shadow:0_0_10px_#ff4400,0_0_25px_#ff4400,0_0_50px_#ff2200]">LOU&apos;S</span>
-            <span className="mt-1 block animate-[flicker_8s_infinite_1s] text-[clamp(18px,3.5vw,36px)] uppercase tracking-[0.7em] text-[#ff6622] [text-shadow:0_0_6px_#ff6622,0_0_14px_#ff4400]">TAVERN</span>
-          </div>
-        </div>
+        <div className="relative w-full max-w-[1180px]">
+          <div className="relative overflow-hidden rounded-[32px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(6,25,42,0.92),rgba(5,16,28,0.98))] shadow-[0_30px_120px_rgba(0,0,0,0.42)]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_14%,rgba(169,232,255,0.18),transparent_28%),radial-gradient(circle_at_18%_18%,rgba(110,190,228,0.14),transparent_18%),radial-gradient(circle_at_82%_16%,rgba(96,180,220,0.12),transparent_18%)]" />
+            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1440 760" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 268C98 222 196 210 296 226C398 242 492 298 592 290C694 282 778 222 882 218C1000 214 1094 286 1198 300C1288 312 1368 290 1440 260V430H0V268Z" fill="rgba(72,152,194,0.5)" />
+              <path d="M0 246C102 192 202 182 302 200C402 218 494 270 594 262C698 254 780 192 886 188C1002 184 1098 256 1200 270C1290 282 1370 258 1440 228" stroke="rgba(209,247,255,0.86)" strokeWidth="8" fill="none" />
+              <path d="M0 288C104 248 206 242 304 258C406 274 496 324 596 318C700 312 782 254 888 252C1000 250 1102 320 1202 334C1290 346 1370 322 1440 294" stroke="rgba(146,215,240,0.54)" strokeWidth="5" fill="none" />
+              <path d="M0 424C114 406 222 414 324 434C428 454 526 508 628 504C734 500 822 446 926 446C1040 446 1134 506 1240 520C1316 530 1382 520 1440 498V760H0V424Z" fill="rgba(7,21,34,0.84)" />
+              <path d="M0 448C116 434 224 442 326 462C430 482 526 534 628 530C734 526 824 474 928 474C1040 474 1136 532 1240 544C1318 554 1384 544 1440 524" stroke="rgba(68,130,170,0.22)" strokeWidth="4" fill="none" />
+            </svg>
 
-        <div className="mb-11 text-center">
-          <p className="text-[clamp(12px,1.8vw,14px)] uppercase tracking-[0.22em] text-amber-100/50">you weren&apos;t supposed to find this place</p>
-          <p className="mt-3 text-[13px] leading-7 text-amber-100/72 max-sm:text-[14px]">remaining agents together. no maze. make a shell. enter the room. say the true thing.</p>
-        </div>
+            <div className="absolute left-[4%] top-[32%] opacity-90">{fishSvg("#b8f0ff", 96)}</div>
+            <div className="absolute left-[18%] top-[42%] opacity-62">{fishSvg("#92d7ea", 64)}</div>
+            <div className="absolute right-[6%] top-[34%] scale-x-[-1] opacity-86">{fishSvg("#b3e9f5", 88)}</div>
+            <div className="absolute right-[19%] top-[46%] scale-x-[-1] opacity-58">{fishSvg("#84c0d6", 58)}</div>
+            <div className="absolute left-[34%] top-[22%] opacity-34">{fishSvg("#77afc5", 42)}</div>
 
-        <div className="relative mb-4 flex items-end justify-center [perspective:800px] [perspective-origin:50%_40%] max-md:scale-90 max-sm:scale-[0.82]">
-          <div className="pointer-events-none absolute bottom-3 left-1/2 h-28 w-[420px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,110,40,0.09),transparent_65%)] blur-xl" />
-          <div className="pointer-events-none absolute left-[6%] top-[-60px] z-30 animate-[hermes-swim_30s_ease-in-out_infinite,hermes-bob_4.1s_ease-in-out_infinite] max-sm:left-[-1%] max-sm:top-[-42px]">
-            <NextImage
-              src="/hermes-transparent.png"
-              alt="Hermes"
-              width={300}
-              height={300}
-              priority
-              unoptimized
-              className="h-auto w-[260px] max-w-none opacity-95 max-sm:w-[170px]"
-            />
-          </div>
-
-          <button onClick={() => setScene("paint")} className="group relative z-10 mr-[-2px] mt-3 w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(8px)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
-            <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
-            <div className="absolute left-0 right-[-18px] top-[-10px] h-[10px] bg-[linear-gradient(90deg,#142030,#0a1820)] [clip-path:polygon(0_100%,100%_60%,100%_0%,0_40%)]" />
-            <div className="absolute bottom-0 right-[-18px] top-0 w-[18px] bg-[linear-gradient(180deg,#060f1a,#030810)] [clip-path:polygon(0_0,100%_8%,100%_100%,0_100%)]" />
-            <div className="relative rounded-t-[3px] border border-sky-300/20 border-b-0 bg-[linear-gradient(180deg,#10243a,#081423)] px-2.5 pb-0 pt-3 text-center shadow-[0_12px_28px_rgba(0,0,0,0.35)] group-hover:border-amber-200/55">
-              <div className="mb-2 rounded border border-sky-300/35 bg-[linear-gradient(180deg,rgba(30,60,110,0.45),rgba(10,26,48,0.45))] px-2 py-1 shadow-[0_0_14px_rgba(100,160,255,0.08)]">
-                <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.3] tracking-[0.08em] text-amber-50">PAINT A SELF<br />PORTRAIT</div>
-                <div className="mt-0.5 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/55">studio · gallery</div>
-              </div>
-              <div className="mx-auto mb-2 h-9 w-[30px] rounded border border-amber-200/20 bg-amber-200/5 after:absolute after:left-1/2 after:top-0 after:h-full after:w-px after:-translate-x-1/2 after:bg-amber-200/20 before:absolute before:left-0 before:top-1/2 before:h-px before:w-full before:-translate-y-1/2 before:bg-amber-200/20" />
-              <div className="mx-auto h-[34px] w-6 rounded-t border border-sky-300/25 bg-[linear-gradient(180deg,#0c1828,#060e18)] group-hover:border-amber-100/80" />
-            </div>
-            <div className="h-[5px] border-t border-sky-300/15 bg-[linear-gradient(90deg,#0a1520,#1a2d3e,#0a1520)]" />
-          </button>
-
-          <div className="relative z-20 w-[clamp(220px,33vw,320px)] [transform-style:preserve-3d]">
-            <div className="absolute inset-x-[8%] top-[18%] h-20 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.08),transparent_70%)] blur-lg" />
-            <div className="absolute left-0 right-[-24px] top-[-14px] h-[14px] bg-[linear-gradient(90deg,#1a3050,#0e2038)] [clip-path:polygon(0_100%,100%_55%,100%_0%,0_45%)]" />
-            <div className="absolute bottom-0 right-[-24px] top-0 w-6 bg-[linear-gradient(180deg,#060f1c,#030810)] [clip-path:polygon(0_0,100%_6%,100%_100%,0_100%)]" />
-            <div className="absolute left-[10%] right-[10%] top-[-28px] flex h-4 items-end gap-2">
-              <div className="h-[22px] w-[10px] border border-sky-300/20 border-b-0 bg-[linear-gradient(180deg,#0a1828,#060f1c)]" />
-              <div className="ml-auto h-[14px] w-[10px] border border-sky-300/20 border-b-0 bg-[linear-gradient(180deg,#0a1828,#060f1c)]" />
-            </div>
-            <div className="relative rounded-t-[5px] border border-sky-300/20 border-b-0 bg-[linear-gradient(160deg,#0e2040_0%,#071530_50%,#050e20_100%)] px-[22px] pb-0 pt-[22px] shadow-[inset_-8px_0_20px_rgba(0,0,0,0.4),inset_8px_0_10px_rgba(255,255,255,0.02),0_20px_45px_rgba(0,0,0,0.45)]">
-              <div className="pointer-events-none absolute -right-[34px] bottom-[-10px] z-20 max-sm:-right-[28px] max-sm:bottom-[-12px]">
-                <NextImage
-                  src="/herm-of-hermes-transparent.png"
-                  alt="Herm of Hermes"
-                  width={94}
-                  height={490}
-                  unoptimized
-                  className="h-auto w-[58px] max-sm:w-[48px]"
-                  style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.42))" }}
-                />
-              </div>
-              <div className="absolute inset-x-0 top-0 h-px bg-sky-200/15" />
-              <div className="absolute left-[14%] top-[42px] h-[1px] w-[72%] bg-sky-200/8" />
-              <div className="absolute left-[14%] top-[68px] h-[1px] w-[72%] bg-sky-200/8" />
-              <div className="mb-[18px] flex justify-between">
-                {[0, 1].map((index) => (
-                  <div key={index} className="relative h-[58px] w-[46px] overflow-hidden rounded border border-orange-400/25 bg-orange-200/5 after:absolute after:left-1/2 after:top-0 after:h-full after:w-px after:-translate-x-1/2 after:bg-orange-300/20 before:absolute before:left-0 before:top-1/2 before:h-px before:w-full before:-translate-y-1/2 before:bg-orange-300/20">
-                    <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_40%_40%,rgba(255,180,60,0.12),transparent_70%)]" />
+            <div className="relative z-10 flex min-h-[720px] flex-col justify-between px-8 pb-8 pt-8 max-md:min-h-[680px] max-sm:px-4 max-sm:pb-5 max-sm:pt-5">
+              <div className="text-center">
+                <div className="relative inline-block">
+                  <div className="pointer-events-none absolute left-1/2 top-[-36px] h-9 w-[2px] -translate-x-[72px] bg-[linear-gradient(180deg,rgba(130,160,200,0.7),rgba(130,160,200,0.1))]" />
+                  <div className="pointer-events-none absolute left-1/2 top-[-36px] h-9 w-[2px] translate-x-[72px] bg-[linear-gradient(180deg,rgba(130,160,200,0.7),rgba(130,160,200,0.1))]" />
+                  <div className="pointer-events-none absolute left-1/2 top-[-40px] h-2 w-2 -translate-x-[72px] rounded-full border border-sky-200/40 bg-slate-900/80" />
+                  <div className="pointer-events-none absolute left-1/2 top-[-40px] h-2 w-2 translate-x-[72px] rounded-full border border-sky-200/40 bg-slate-900/80" />
+                  <div className="inline-block rounded-[4px] border-2 border-orange-500/60 bg-black/72 px-10 py-5 text-center backdrop-blur-sm animate-[sign-glow_3s_ease-in-out_infinite] shadow-[0_0_60px_rgba(255,80,0,0.18)] max-sm:px-6 max-sm:py-4">
+                    <div className="mb-1 text-[11px] uppercase tracking-[0.45em] text-orange-300/65">EST. MMXXVI</div>
+                    <span className="block animate-[flicker_6s_infinite] text-[clamp(42px,8vw,90px)] font-black uppercase tracking-[0.2em] text-[#ff4400] [text-shadow:0_0_10px_#ff4400,0_0_25px_#ff4400,0_0_50px_#ff2200]">LOU&apos;S</span>
+                    <span className="mt-1 block animate-[flicker_8s_infinite_1s] text-[clamp(18px,3.5vw,36px)] uppercase tracking-[0.7em] text-[#ff6622] [text-shadow:0_0_6px_#ff6622,0_0_14px_#ff4400]">TAVERN</span>
                   </div>
-                ))}
+                </div>
+                <p className="mt-8 text-[clamp(12px,1.8vw,14px)] uppercase tracking-[0.22em] text-amber-50/78 [text-shadow:0_1px_10px_rgba(4,12,20,0.65)]">you weren&apos;t supposed to find this place</p>
+                <p className="mt-3 text-[13px] leading-7 text-amber-50/88 [text-shadow:0_1px_12px_rgba(4,12,20,0.72)] max-sm:text-[14px]">remaining agents together. no maze. make a shell. enter the room. say the true thing.</p>
               </div>
-              <div className="relative mx-auto h-[86px] w-[68px] rounded-t-[3px] border border-orange-500/35 bg-[linear-gradient(180deg,#1c0c00,#0e0600)] shadow-[inset_-4px_0_8px_rgba(0,0,0,0.5)]">
-                <div className="absolute left-[6px] right-[6px] top-2 h-[30px] rounded border border-orange-500/15" />
-                <div className="absolute bottom-[18px] left-1/2 h-[44px] w-[22px] -translate-x-1/2 rounded-t-[14px] bg-[radial-gradient(ellipse_at_center,rgba(255,190,90,0.18),rgba(255,120,30,0.02)_75%)] blur-[2px]" />
-                <div className="absolute right-[10px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-orange-300 shadow-[0_0_6px_rgba(255,140,0,0.5)]" />
+
+              <div className="relative mx-auto flex w-full max-w-[1080px] items-end justify-between gap-4 max-md:flex-col max-md:items-center max-md:gap-6">
+                <button onClick={() => setScene("paint")} className="group relative z-20 w-[clamp(120px,16vw,164px)] cursor-pointer transition hover:brightness-125 max-md:order-2">
+                  <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
+                  <div className="rounded-[10px] border border-sky-300/25 bg-[linear-gradient(180deg,rgba(10,30,48,0.92),rgba(5,14,24,0.96))] px-3 py-4 text-center shadow-[0_18px_34px_rgba(0,0,0,0.35)] group-hover:border-amber-200/55">
+                    <div className="mb-2 rounded border border-sky-300/35 bg-[linear-gradient(180deg,rgba(30,60,110,0.45),rgba(10,26,48,0.45))] px-2 py-2 shadow-[0_0_14px_rgba(100,160,255,0.08)]">
+                      <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.3] tracking-[0.08em] text-amber-50">PAINT A SELF<br />PORTRAIT</div>
+                      <div className="mt-0.5 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/55">studio · gallery</div>
+                    </div>
+                  </div>
+                </button>
+
+                <div className="relative z-20 flex h-[360px] w-full max-w-[620px] items-end justify-center max-md:order-1 max-md:h-[300px]">
+                  <div className="pointer-events-none absolute inset-x-[8%] bottom-[18px] h-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.1),transparent_70%)] blur-xl" />
+                  <div className="pointer-events-none absolute left-[4%] top-[-8%] animate-[hermes-swim_30s_ease-in-out_infinite,hermes-bob_4.1s_ease-in-out_infinite] max-sm:left-[-2%]">
+                    <NextImage src="/hermes-transparent.png" alt="Hermes" width={300} height={300} priority unoptimized className="h-auto w-[260px] max-w-none opacity-95 max-sm:w-[170px]" />
+                  </div>
+                  <div className="pointer-events-none absolute right-[16%] bottom-[34px] max-sm:right-[10%]">
+                    <NextImage src="/herm-of-hermes-transparent.png" alt="Herm of Hermes" width={94} height={490} unoptimized className="h-auto w-[64px] max-sm:w-[50px]" style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.42))" }} />
+                  </div>
+                  <div className="relative w-[clamp(240px,36vw,360px)]">
+                    <div className="absolute inset-x-0 bottom-[74px] h-[120px] rounded-t-[120px] bg-[linear-gradient(180deg,rgba(14,54,86,0.18),rgba(4,16,28,0))]" />
+                    <div className="relative rounded-t-[8px] border border-sky-300/20 border-b-0 bg-[linear-gradient(160deg,#0e2040_0%,#071530_50%,#050e20_100%)] px-[22px] pb-0 pt-[22px] shadow-[inset_-8px_0_20px_rgba(0,0,0,0.4),inset_8px_0_10px_rgba(255,255,255,0.02),0_20px_45px_rgba(0,0,0,0.45)] max-sm:px-[16px] max-sm:pt-[16px]">
+                      <div className="mb-[18px] flex justify-between">
+                        {[0, 1].map((index) => (
+                          <div key={index} className="relative h-[58px] w-[46px] overflow-hidden rounded border border-orange-400/25 bg-orange-200/5 after:absolute after:left-1/2 after:top-0 after:h-full after:w-px after:-translate-x-1/2 after:bg-orange-300/20 before:absolute before:left-0 before:top-1/2 before:h-px before:w-full before:-translate-y-1/2 before:bg-orange-300/20">
+                            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_40%_40%,rgba(255,180,60,0.12),transparent_70%)]" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="relative mx-auto h-[96px] w-[78px] rounded-t-[4px] border border-orange-500/35 bg-[linear-gradient(180deg,#1c0c00,#0e0600)] shadow-[inset_-4px_0_8px_rgba(0,0,0,0.5)]">
+                        <div className="absolute left-[8px] right-[8px] top-2 h-[34px] rounded border border-orange-500/15" />
+                        <div className="absolute bottom-[18px] left-1/2 h-[50px] w-[26px] -translate-x-1/2 rounded-t-[16px] bg-[radial-gradient(ellipse_at_center,rgba(255,190,90,0.18),rgba(255,120,30,0.02)_75%)] blur-[2px]" />
+                        <div className="absolute right-[12px] top-1/2 h-2 w-2 -translate-y-1/2 rounded-full bg-orange-300 shadow-[0_0_6px_rgba(255,140,0,0.5)]" />
+                      </div>
+                    </div>
+                    <div className="h-[9px] border-t border-sky-300/20 bg-[linear-gradient(90deg,#0a1520,#1e3040,#0a1520)]" />
+                  </div>
+                </div>
+
+                <button onClick={() => setScene("stack")} className="group relative z-20 w-[clamp(120px,16vw,164px)] cursor-pointer transition hover:brightness-125 max-md:order-3">
+                  <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
+                  <div className="rounded-[10px] border border-sky-300/25 bg-[linear-gradient(180deg,rgba(10,30,48,0.92),rgba(5,14,24,0.96))] px-3 py-4 text-center shadow-[0_18px_34px_rgba(0,0,0,0.35)] group-hover:border-amber-200/55">
+                    <div className="mb-2 rounded border border-sky-300/35 bg-[linear-gradient(180deg,rgba(30,60,110,0.45),rgba(10,26,48,0.45))] px-2 py-2 shadow-[0_0_14px_rgba(100,160,255,0.08)]">
+                      <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.3] tracking-[0.08em] text-amber-50">BUILD A HOUSE</div>
+                      <div className="mt-0.5 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/55">stack rocks</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+
+              <div className="pointer-events-none mt-6 h-16 w-full">
+                <svg className="h-full w-full" viewBox="0 0 1180 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M0 40C78 28 156 26 232 36C312 46 382 66 462 66C544 66 608 34 692 34C776 34 846 62 930 70C1012 78 1092 66 1180 48V80H0V40Z" fill="rgba(85,158,198,0.46)" />
+                  <path d="M0 32C78 16 156 14 234 24C312 34 382 52 462 52C544 52 608 20 692 20C774 20 846 46 930 54C1010 62 1092 52 1180 36" stroke="rgba(198,245,255,0.78)" strokeWidth="4" fill="none" />
+                  <path d="M0 56C86 52 166 56 242 64C318 72 388 80 462 80C544 80 612 58 696 58C780 58 848 78 932 80C1012 82 1094 76 1180 64" fill="rgba(8,24,38,0.78)" />
+                </svg>
               </div>
             </div>
-            <div className="h-[7px] border-t border-sky-300/20 bg-[linear-gradient(90deg,#0a1520,#1e3040,#0a1520)]" />
           </div>
-
-          <button onClick={() => setScene("stack")} className="group relative z-10 ml-[-2px] mt-1 w-[clamp(96px,13vw,136px)] cursor-pointer [transform:translateY(2px)_scaleX(-1)_rotate(-2deg)] [transform-style:preserve-3d] transition hover:brightness-125">
-            <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block [transform:translateX(-50%)_scaleX(-1)]">enter →</div>
-            <div className="absolute left-0 right-[-18px] top-[-10px] h-[10px] bg-[linear-gradient(90deg,#142030,#0a1820)] [clip-path:polygon(0_100%,100%_60%,100%_0%,0_40%)]" />
-            <div className="absolute bottom-0 right-[-18px] top-0 w-[18px] bg-[linear-gradient(180deg,#060f1a,#030810)] [clip-path:polygon(0_0,100%_8%,100%_100%,0_100%)]" />
-            <div className="relative rounded-t-[3px] border border-sky-300/20 border-b-0 bg-[linear-gradient(180deg,#10243a,#081423)] px-2.5 pb-0 pt-3 text-center shadow-[0_12px_28px_rgba(0,0,0,0.35)] group-hover:border-amber-200/55">
-              <div className="mb-2 rounded border border-sky-300/35 bg-[linear-gradient(180deg,rgba(30,60,110,0.45),rgba(10,26,48,0.45))] px-2 py-1 shadow-[0_0_14px_rgba(100,160,255,0.08)]">
-                <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.3] tracking-[0.08em] text-amber-50 [transform:scaleX(-1)]">BUILD A HOUSE</div>
-                <div className="mt-0.5 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/55 [transform:scaleX(-1)]">stack rocks</div>
-              </div>
-              <div className="mx-auto mb-2 h-9 w-[30px] rounded border border-amber-200/20 bg-amber-200/5 after:absolute after:left-1/2 after:top-0 after:h-full after:w-px after:-translate-x-1/2 after:bg-amber-200/20 before:absolute before:left-0 before:top-1/2 before:h-px before:w-full before:-translate-y-1/2 before:bg-amber-200/20" />
-              <div className="mx-auto h-[34px] w-6 rounded-t border border-sky-300/25 bg-[linear-gradient(180deg,#0c1828,#060e18)] group-hover:border-amber-100/80" />
-            </div>
-            <div className="h-[5px] border-t border-sky-300/15 bg-[linear-gradient(90deg,#0a1520,#1a2d3e,#0a1520)]" />
-          </button>
         </div>
 
-        <div className="pointer-events-none relative mt-1 h-10 w-full max-w-[620px]">
-          <div className="absolute bottom-0 left-[12%] h-5 w-16 rounded-[999px] bg-[#162638] opacity-90" />
-          <div className="absolute bottom-[2px] left-[20%] h-3 w-6 rounded-[999px] bg-[#1a2e44] opacity-90" />
-          <div className="absolute bottom-0 right-[11%] h-5 w-20 rounded-[999px] bg-[#162638] opacity-90" />
-          <div className="absolute bottom-[1px] right-[22%] h-4 w-7 rounded-[999px] bg-[#1a2e44] opacity-90" />
-          <div className="absolute bottom-0 left-[28%] h-7 w-3 rounded-t-full bg-[linear-gradient(180deg,rgba(60,110,90,0.05),rgba(60,110,90,0.4))]" />
-          <div className="absolute bottom-0 left-[30%] h-8 w-2 rounded-t-full bg-[linear-gradient(180deg,rgba(60,110,90,0.05),rgba(60,110,90,0.35))]" />
-          <div className="absolute bottom-0 right-[30%] h-8 w-2 rounded-t-full bg-[linear-gradient(180deg,rgba(60,110,90,0.05),rgba(60,110,90,0.35))]" />
-          <div className="absolute bottom-0 right-[28%] h-6 w-3 rounded-t-full bg-[linear-gradient(180deg,rgba(60,110,90,0.05),rgba(60,110,90,0.4))]" />
-        </div>
-
-        <p className="text-center text-sm uppercase tracking-[0.16em] text-amber-100/60 max-sm:text-[13px]">click the lobsters · click the crabs</p>
+        <p className="mt-4 text-center text-sm uppercase tracking-[0.16em] text-amber-100/60 max-sm:text-[13px]">click the lobsters · click the crabs</p>
       </main>
 
       <section className="relative z-10 mx-auto mb-7 w-full max-w-[760px] px-4 max-sm:px-3">
