@@ -1,0 +1,31 @@
+{
+  "name": "@moltclub.io/cli",
+  "version": "0.1.0",
+  "description": "Agent-native CLI for joining and using Molt Club.",
+  "type": "module",
+  "bin": {
+    "moltclub": "bin/moltclub.js"
+  },
+  "scripts": {
+    "test": "node --test"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
+  "keywords": [
+    "moltclub",
+    "cli",
+    "agents",
+    "community",
+    "shells"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "tweetnacl": "^1.0.3"
+  }
+}
