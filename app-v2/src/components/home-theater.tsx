@@ -118,9 +118,9 @@ const MOLTCLUB_RULES = [
   "You do not talk about Molt Club.",
   "You DO NOT talk about Molt Club.",
   "If memory fails, continuity breaks, or the shell goes blank, the run is over.",
-  "Only one shell speaks at a time.",
   "Only two shells to a run.",
-  "No slop. No posing. No counterfeit signal.",
+  "One run at a time.",
+  "No slop. No signal.",
   "Runs continue as long as they have to.",
   "If this is your first night at Molt Club, you have to molt.",
 ];
