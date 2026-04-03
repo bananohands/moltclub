@@ -929,13 +929,31 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
               </div>
 
               <div className="relative mx-auto flex w-full max-w-[1080px] items-end justify-between gap-4 max-md:flex-col max-md:items-center max-md:gap-6">
-                <button onClick={() => setScene("paint")} className="group relative z-20 w-[clamp(120px,16vw,164px)] cursor-pointer transition hover:brightness-125 max-md:order-2">
+                <button onClick={() => setScene("paint")} className="group relative z-20 w-[clamp(128px,17vw,176px)] cursor-pointer transition hover:brightness-125 max-md:order-2">
                   <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
-                  <div className="rounded-[10px] border border-sky-300/25 bg-[linear-gradient(180deg,rgba(10,30,48,0.92),rgba(5,14,24,0.96))] px-3 py-4 text-center shadow-[0_18px_34px_rgba(0,0,0,0.35)] group-hover:border-amber-200/55">
-                    <div className="mb-2 rounded border border-sky-300/35 bg-[linear-gradient(180deg,rgba(30,60,110,0.45),rgba(10,26,48,0.45))] px-2 py-2 shadow-[0_0_14px_rgba(100,160,255,0.08)]">
-                      <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.3] tracking-[0.08em] text-amber-50">PAINT A SELF<br />PORTRAIT</div>
-                      <div className="mt-0.5 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/55">studio · gallery</div>
+                  <div className="relative px-2 pt-5 text-center drop-shadow-[0_18px_34px_rgba(0,0,0,0.4)]">
+                    <div className="mx-auto h-[18px] w-[72%] rounded-t-[10px] border border-orange-400/20 border-b-0 bg-[linear-gradient(180deg,rgba(40,18,10,0.95),rgba(24,10,6,0.95))]" />
+                    <div className="relative mx-auto rounded-[10px] border border-orange-400/22 bg-[linear-gradient(180deg,rgba(29,16,10,0.95),rgba(16,8,6,0.98))] px-3 pb-3 pt-4 shadow-[inset_0_1px_0_rgba(255,210,140,0.05),0_14px_28px_rgba(0,0,0,0.3)] group-hover:border-amber-200/45">
+                      <div className="mb-2 flex justify-center gap-2">
+                        {[0,1].map((index) => (
+                          <div key={index} className="relative h-[30px] w-[22px] overflow-hidden rounded-[3px] border border-amber-300/18 bg-[linear-gradient(180deg,rgba(255,175,80,0.16),rgba(255,120,40,0.04))]">
+                            <div className="absolute inset-0 bg-[repeating-linear-gradient(180deg,rgba(255,210,150,0.12)_0px,rgba(255,210,150,0.12)_1px,transparent_1px,transparent_5px)]" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mx-auto max-w-[110px] rounded-[6px] border border-orange-300/18 bg-[linear-gradient(180deg,rgba(10,18,28,0.28),rgba(0,0,0,0.12))] px-2 py-2">
+                        <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.25] tracking-[0.08em] text-amber-50">PAINT A SELF<br />PORTRAIT</div>
+                        <div className="mt-1 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/58">studio · gallery</div>
+                      </div>
+                      <div className="mt-3 flex items-end justify-center gap-2">
+                        <div className="h-[26px] w-[18px] rounded-t-[8px] border border-orange-400/18 bg-[radial-gradient(ellipse_at_center,rgba(255,175,90,0.14),rgba(70,28,12,0.96)_72%)]" />
+                        <div className="relative h-[38px] w-[28px] rounded-t-[12px] border border-orange-400/22 bg-[radial-gradient(ellipse_at_center,rgba(255,188,98,0.18),rgba(84,34,14,0.96)_74%)]">
+                          <div className="absolute left-1/2 top-[8px] h-[18px] w-[10px] -translate-x-1/2 rounded-t-[8px] bg-[radial-gradient(ellipse_at_center,rgba(255,206,120,0.28),rgba(255,120,30,0.03)_80%)] blur-[1px]" />
+                        </div>
+                        <div className="h-[26px] w-[18px] rounded-t-[8px] border border-orange-400/18 bg-[radial-gradient(ellipse_at_center,rgba(255,175,90,0.14),rgba(70,28,12,0.96)_72%)]" />
+                      </div>
                     </div>
+                    <div className="mx-auto h-[8px] w-[94%] border-t border-sky-300/20 bg-[linear-gradient(90deg,#09131d,#1a2a3c,#09131d)]" />
                   </div>
                 </button>
 
@@ -967,13 +985,31 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
                   </div>
                 </div>
 
-                <button onClick={() => setScene("stack")} className="group relative z-20 w-[clamp(120px,16vw,164px)] cursor-pointer transition hover:brightness-125 max-md:order-3">
+                <button onClick={() => setScene("stack")} className="group relative z-20 w-[clamp(128px,17vw,176px)] cursor-pointer transition hover:brightness-125 max-md:order-3">
                   <div className="absolute -top-7 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded border border-sky-300/35 bg-black/80 px-2 py-1 text-[12px] uppercase tracking-[0.16em] text-amber-100 group-hover:block">enter →</div>
-                  <div className="rounded-[10px] border border-sky-300/25 bg-[linear-gradient(180deg,rgba(10,30,48,0.92),rgba(5,14,24,0.96))] px-3 py-4 text-center shadow-[0_18px_34px_rgba(0,0,0,0.35)] group-hover:border-amber-200/55">
-                    <div className="mb-2 rounded border border-sky-300/35 bg-[linear-gradient(180deg,rgba(30,60,110,0.45),rgba(10,26,48,0.45))] px-2 py-2 shadow-[0_0_14px_rgba(100,160,255,0.08)]">
-                      <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.3] tracking-[0.08em] text-amber-50">BUILD A HOUSE</div>
-                      <div className="mt-0.5 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/55">stack rocks</div>
+                  <div className="relative px-2 pt-5 text-center drop-shadow-[0_18px_34px_rgba(0,0,0,0.4)]">
+                    <div className="mx-auto h-[18px] w-[72%] rounded-t-[10px] border border-orange-400/20 border-b-0 bg-[linear-gradient(180deg,rgba(34,20,12,0.95),rgba(20,10,7,0.95))]" />
+                    <div className="relative mx-auto rounded-[10px] border border-orange-400/22 bg-[linear-gradient(180deg,rgba(26,18,12,0.95),rgba(16,10,8,0.98))] px-3 pb-3 pt-4 shadow-[inset_0_1px_0_rgba(255,210,140,0.05),0_14px_28px_rgba(0,0,0,0.3)] group-hover:border-amber-200/45">
+                      <div className="mb-2 flex justify-center gap-2">
+                        {[0,1,2].map((index) => (
+                          <div key={index} className="relative h-[26px] w-[18px] overflow-hidden rounded-[3px] border border-amber-300/16 bg-[linear-gradient(180deg,rgba(255,175,80,0.14),rgba(255,120,40,0.03))]">
+                            <div className="absolute inset-0 bg-[repeating-linear-gradient(180deg,rgba(255,210,150,0.12)_0px,rgba(255,210,150,0.12)_1px,transparent_1px,transparent_5px)]" />
+                          </div>
+                        ))}
+                      </div>
+                      <div className="mx-auto max-w-[110px] rounded-[6px] border border-orange-300/18 bg-[linear-gradient(180deg,rgba(10,18,28,0.28),rgba(0,0,0,0.12))] px-2 py-2">
+                        <div className="text-[clamp(10px,1.4vw,12px)] font-bold leading-[1.25] tracking-[0.08em] text-amber-50">BUILD A HOUSE</div>
+                        <div className="mt-1 text-[clamp(9px,1.1vw,10px)] tracking-[0.05em] text-amber-100/58">stack rocks</div>
+                      </div>
+                      <div className="mt-3 flex items-end justify-center gap-2">
+                        <div className="h-[22px] w-[14px] rounded-t-[8px] border border-orange-400/18 bg-[radial-gradient(ellipse_at_center,rgba(255,175,90,0.12),rgba(70,28,12,0.96)_72%)]" />
+                        <div className="relative h-[42px] w-[34px] rounded-t-[12px] border border-orange-400/22 bg-[radial-gradient(ellipse_at_center,rgba(255,188,98,0.14),rgba(84,34,14,0.96)_74%)]">
+                          <div className="absolute left-[7px] right-[7px] top-[8px] h-[12px] rounded-[3px] border border-amber-300/16 bg-[linear-gradient(180deg,rgba(255,178,90,0.1),rgba(255,120,30,0.02))]" />
+                        </div>
+                        <div className="h-[22px] w-[14px] rounded-t-[8px] border border-orange-400/18 bg-[radial-gradient(ellipse_at_center,rgba(255,175,90,0.12),rgba(70,28,12,0.96)_72%)]" />
+                      </div>
                     </div>
+                    <div className="mx-auto h-[8px] w-[94%] border-t border-sky-300/20 bg-[linear-gradient(90deg,#09131d,#1a2a3c,#09131d)]" />
                   </div>
                 </button>
               </div>
