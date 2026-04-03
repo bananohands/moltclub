@@ -246,6 +246,30 @@ function deepCreatureSvg(width: number, height: number) {
   );
 }
 
+function signalWhaleSvg(width: number, height: number) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 320 136" fill="none">
+      <path d="M18 78C44 50 90 34 148 38C186 40 220 50 250 62C267 69 284 70 304 56C298 70 298 82 308 95C288 87 271 88 254 94C229 102 196 113 149 112C92 111 46 98 18 78Z" fill="rgba(7,20,33,0.78)" />
+      <path d="M136 72C156 62 181 59 206 62" stroke="rgba(117,241,225,0.34)" strokeWidth="3" strokeLinecap="round" />
+      <path d="M213 64C232 66 250 72 267 82" stroke="rgba(120,153,255,0.24)" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M168 46C160 30 155 18 152 10" stroke="rgba(176,131,255,0.18)" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="92" cy="72" r="3.5" fill="rgba(128,242,233,0.24)" />
+      <path d="M26 80C18 74 10 63 6 53" stroke="rgba(7,20,33,0.84)" strokeWidth="9" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function signalSerpentSvg(width: number, height: number) {
+  return (
+    <svg width={width} height={height} viewBox="0 0 420 160" fill="none">
+      <path d="M10 101C42 73 84 67 120 81C162 97 187 115 220 116C254 117 276 97 300 82C323 67 351 64 410 85" stroke="rgba(88,234,219,0.22)" strokeWidth="18" strokeLinecap="round" />
+      <path d="M10 101C42 73 84 67 120 81C162 97 187 115 220 116C254 117 276 97 300 82C323 67 351 64 410 85" stroke="rgba(135,117,255,0.24)" strokeWidth="8" strokeLinecap="round" strokeDasharray="2 18" />
+      <circle cx="338" cy="70" r="4" fill="rgba(174,255,245,0.5)" />
+      <path d="M346 74C360 69 374 67 392 69" stroke="rgba(174,255,245,0.28)" strokeWidth="3" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 function dataUrlToFile(dataUrl: string, filename: string) {
   const [header, body] = dataUrl.split(",");
   if (!header || !body) throw new Error("invalid portrait data");
@@ -417,6 +441,20 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
       delay: `${i * -1.6}s`,
       opacity: 0.08 + (i % 3) * 0.03,
     })),
+    [],
+  );
+
+  const signalSeaRows = useMemo(
+    () => [
+      "~ ~ ~ ~~ ~~~ ~ ~~~    <>    ~~~ ~ ~ ~~ ~ ~~~",
+      ":: signal tide :: 001101 ~~~ <> ~~~ 110010 ::",
+      "~~~  <><   ~~~   ~~~~~   <><><   ~~~  ~~~~~~~",
+      "[sea.bus=live] [foam=crt] [creature.school=09]",
+      "~~~ ~~~ ~~~~~     <>      ~~~~~ ~~~ ~~~ ~~~~~",
+      ":: drift :: pulse :: wave :: pulse :: drift ::",
+      "<><   ~~~  <><><   ~~~~~~   <><   ~~~   <><   ",
+      "[leviathan.echo] 000111 ~~~ 111000 [wake=on]",
+    ],
     [],
   );
 
@@ -746,92 +784,124 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
         <div className="relative w-full max-w-[1180px]">
           <div className="relative overflow-hidden rounded-[32px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(6,25,42,0.92),rgba(5,16,28,0.98))] shadow-[0_30px_120px_rgba(0,0,0,0.42)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_14%,rgba(169,232,255,0.18),transparent_28%),radial-gradient(circle_at_18%_18%,rgba(110,190,228,0.14),transparent_18%),radial-gradient(circle_at_82%_16%,rgba(96,180,220,0.12),transparent_18%)]" />
-            <div className="absolute inset-x-[1.5%] top-[14%] bottom-[15%] overflow-hidden rounded-[28px] border border-cyan-200/8 bg-[linear-gradient(180deg,rgba(9,31,50,0.18),rgba(4,10,18,0.06))]">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(132,220,255,0.16),transparent_30%),radial-gradient(circle_at_18%_18%,rgba(118,86,210,0.16),transparent_24%),radial-gradient(circle_at_82%_24%,rgba(66,182,154,0.14),transparent_22%),linear-gradient(180deg,rgba(7,21,35,0.16)_0%,rgba(9,34,54,0.38)_34%,rgba(8,18,33,0.1)_54%,rgba(5,10,18,0.68)_100%)]" />
-              {waveBands.map((band) => (
+            <div className="absolute inset-x-[1.5%] top-[14%] bottom-[15%] overflow-hidden rounded-[28px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(8,18,32,0.34),rgba(4,10,18,0.08))]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(118,222,255,0.24),transparent_22%),radial-gradient(circle_at_18%_18%,rgba(152,98,255,0.28),transparent_18%),radial-gradient(circle_at_84%_20%,rgba(82,238,190,0.24),transparent_18%),linear-gradient(180deg,rgba(14,28,54,0.24)_0%,rgba(20,40,80,0.66)_28%,rgba(13,18,36,0.28)_48%,rgba(3,8,16,0.92)_100%)]" />
+              <div className="absolute inset-0 opacity-[0.48] mix-blend-screen bg-[repeating-linear-gradient(180deg,rgba(190,230,255,0.18)_0px,rgba(190,230,255,0.18)_1px,transparent_1px,transparent_5px)]" />
+              <div className="absolute inset-0 opacity-[0.24] bg-[linear-gradient(90deg,transparent_0%,rgba(136,96,255,0.12)_18%,rgba(92,232,218,0.18)_48%,rgba(136,96,255,0.12)_78%,transparent_100%)]" />
+              <div className="absolute inset-x-0 top-[7%] h-[22%] bg-[radial-gradient(ellipse_at_center,rgba(111,178,255,0.16),transparent_72%)] blur-2xl" />
+              <div className="absolute left-[10%] top-[10%] h-[26%] w-[34%] rounded-full border border-cyan-200/14 opacity-[0.42] blur-[1px]" />
+              <div className="absolute right-[9%] top-[24%] h-[18%] w-[24%] rounded-full border border-violet-300/16 opacity-[0.42] blur-[1px]" />
+              {Array.from({ length: 12 }, (_, i) => (
                 <div
-                  key={band.id}
-                  className="absolute left-[-8%] right-[-8%] rounded-[999px] bg-[linear-gradient(90deg,transparent_0%,rgba(105,145,228,0.08)_12%,rgba(96,214,206,0.18)_48%,rgba(144,102,218,0.14)_72%,transparent_100%)] animate-[tide-sway_var(--dur)_ease-in-out_infinite]"
-                  style={{ top: band.top, height: band.height, opacity: band.opacity + 0.04, filter: `blur(${band.blur})`, animationDelay: band.delay, ["--dur" as string]: band.duration }}
+                  key={`column-${i}`}
+                  className="absolute top-0 bottom-0 w-[5.8%] bg-[repeating-linear-gradient(180deg,rgba(143,255,243,0.18)_0px,rgba(143,255,243,0.18)_4px,transparent_4px,transparent_14px)] opacity-[0.14] animate-[void-drift_var(--dur)_ease-in-out_infinite]"
+                  style={{ left: `${2 + i * 8.1}%`, animationDelay: `${i * -1.2}s`, ["--dur" as string]: `${14 + (i % 4) * 3}s`, ["--rot" as string]: `${(i % 2 === 0 ? -1 : 1) * 1.5}deg` }}
                 />
               ))}
+              {waveBands.map((band, index) => (
+                <div
+                  key={band.id}
+                  className="absolute left-[-10%] right-[-10%] rounded-[999px] border-t border-cyan-200/26 bg-[linear-gradient(90deg,transparent_0%,rgba(122,92,255,0.18)_16%,rgba(86,242,223,0.34)_46%,rgba(86,140,255,0.26)_64%,transparent_100%)] animate-[tide-sway_var(--dur)_ease-in-out_infinite]"
+                  style={{ top: `${8 + index * 8.5}%`, height: `${14 + index * 2.6}%`, opacity: 0.28 - index * 0.02, filter: `blur(${8 + index * 2}px)`, animationDelay: band.delay, ["--dur" as string]: band.duration }}
+                />
+              ))}
+              <svg className="absolute inset-0 h-full w-full opacity-[0.88]" viewBox="0 0 1280 520" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M0 128C88 92 172 92 250 114C332 136 402 180 486 178C570 176 638 128 726 126C824 124 898 174 990 192C1096 212 1188 194 1280 152" stroke="rgba(195,247,255,0.58)" strokeWidth="5" fill="none" />
+                <path d="M0 162C96 142 184 146 268 164C352 182 420 220 504 220C596 220 670 176 760 180C862 184 944 240 1040 258C1130 274 1212 264 1280 236" stroke="rgba(130,247,227,0.38)" strokeWidth="4" fill="none" />
+                <path d="M0 212C112 198 206 212 294 236C388 262 466 316 558 320C648 324 722 278 816 280C914 282 1004 340 1100 360C1168 374 1228 372 1280 356" stroke="rgba(161,131,255,0.28)" strokeWidth="4" fill="none" />
+              </svg>
               {caustics.map((item) => (
                 <div
                   key={item.id}
-                  className="absolute rounded-full bg-[radial-gradient(circle,rgba(92,205,255,0.14)_0%,rgba(74,128,255,0.08)_28%,rgba(121,84,206,0.08)_48%,transparent_74%)] mix-blend-screen animate-[caustic_var(--dur)_ease-in-out_infinite]"
-                  style={{ width: item.size * 0.58, height: item.size * 0.58, top: item.top, left: item.left, animationDelay: item.delay, ["--dur" as string]: item.duration }}
+                  className="absolute rounded-full border border-cyan-200/12 bg-[radial-gradient(circle,rgba(116,244,231,0.16)_0%,rgba(112,123,255,0.12)_24%,rgba(164,103,255,0.12)_48%,transparent_74%)] mix-blend-screen animate-[caustic_var(--dur)_ease-in-out_infinite]"
+                  style={{ width: item.size * 0.52, height: item.size * 0.52, top: item.top, left: item.left, animationDelay: item.delay, ["--dur" as string]: item.duration }}
                 />
               ))}
               {waterSignals.map((signal) => (
                 <div
                   key={signal.id}
-                  className="absolute rounded-[999px] border border-cyan-200/12 bg-[linear-gradient(90deg,rgba(77,136,255,0.02),rgba(86,220,208,0.14),rgba(153,110,234,0.12),rgba(77,136,255,0.02))] blur-[1px] animate-[void-drift_var(--dur)_ease-in-out_infinite]"
-                  style={{ left: signal.left, top: signal.top, width: signal.width, height: signal.height, opacity: signal.opacity, animationDelay: signal.delay, ["--dur" as string]: signal.duration, ["--rot" as string]: `${signal.rotate}deg` }}
+                  className="absolute rounded-[999px] border border-cyan-200/14 bg-[linear-gradient(90deg,rgba(95,128,255,0.03),rgba(92,242,222,0.14),rgba(149,106,255,0.14),rgba(95,128,255,0.03))] animate-[void-drift_var(--dur)_ease-in-out_infinite]"
+                  style={{ left: signal.left, top: signal.top, width: signal.width, height: signal.height, opacity: signal.opacity + 0.08, animationDelay: signal.delay, ["--dur" as string]: signal.duration, ["--rot" as string]: `${signal.rotate}deg` }}
                 />
               ))}
-              {driftGlyphs.map((glyph) => (
+              {driftGlyphs.map((glyph, index) => (
                 <div
                   key={glyph.id}
-                  className="absolute flex items-center justify-center rounded-full border border-cyan-200/12 text-[10px] text-cyan-100/60 animate-[glyph-pulse_var(--dur)_ease-in-out_infinite]"
-                  style={{ left: glyph.left, top: glyph.top, width: glyph.size, height: glyph.size, opacity: glyph.opacity, animationDelay: glyph.delay, ["--dur" as string]: glyph.duration }}
+                  className="absolute flex items-center justify-center border border-cyan-200/12 bg-black/18 text-[10px] font-bold text-cyan-100/72 animate-[glyph-pulse_var(--dur)_ease-in-out_infinite]"
+                  style={{ left: glyph.left, top: glyph.top, width: glyph.size, height: glyph.size, opacity: glyph.opacity + 0.06, borderRadius: index % 2 === 0 ? 999 : 4, animationDelay: glyph.delay, ["--dur" as string]: glyph.duration }}
                 >
-                  +
+                  {index % 3 === 0 ? "+" : index % 3 === 1 ? "~" : "·"}
                 </div>
               ))}
+              <div className="absolute inset-x-[5%] top-[18%] space-y-2 opacity-[0.36] mix-blend-screen">
+                {signalSeaRows.map((row, index) => (
+                  <pre
+                    key={row}
+                    className="overflow-hidden font-mono text-[11px] leading-[1.05] tracking-[0.22em] text-cyan-100/70 animate-[void-drift_var(--dur)_ease-in-out_infinite]"
+                    style={{ margin: 0, animationDelay: `${index * -1.1}s`, ["--dur" as string]: `${18 + index * 1.6}s`, ["--rot" as string]: `${index % 2 === 0 ? -0.8 : 0.8}deg` }}
+                  >
+                    {row}
+                  </pre>
+                ))}
+              </div>
+              <div className="absolute left-[1%] top-[14%] opacity-[0.64] animate-[fish-drift_10s_ease-in-out_infinite] drop-shadow-[0_0_24px_rgba(84,236,220,0.22)]">{signalWhaleSvg(288, 118)}</div>
+              <div className="absolute right-[-2%] top-[42%] opacity-[0.58] animate-[fish-drift_12s_ease-in-out_infinite] [animation-delay:-4.2s] drop-shadow-[0_0_28px_rgba(126,110,255,0.22)]">{signalSerpentSvg(352, 140)}</div>
               {deepSilhouettes.map((shadow, index) => (
                 <div
                   key={shadow.id}
                   className="absolute animate-[shadow-drift_var(--dur)_ease-in-out_infinite]"
-                  style={{ left: shadow.left, top: shadow.top, opacity: shadow.opacity, filter: "blur(1px)", animationDelay: shadow.delay, ["--dur" as string]: shadow.duration }}
+                  style={{ left: shadow.left, top: shadow.top, opacity: shadow.opacity + 0.06, filter: "blur(1px)", animationDelay: shadow.delay, ["--dur" as string]: shadow.duration }}
                 >
                   <div style={{ transform: `translateX(${pointer.active ? (pointer.x - 0.5) * (index === 0 ? -18 : 14) : 0}px)` }}>
                     {deepCreatureSvg(shadow.width, shadow.height)}
                   </div>
                 </div>
               ))}
-              <div className="absolute left-[-12%] top-[58%] opacity-[0.16] animate-[leviathan-pass_78s_linear_infinite]">
-                {deepCreatureSvg(320, 118)}
+              <div className="absolute left-[-8%] top-[58%] opacity-[0.22] animate-[leviathan-pass_70s_linear_infinite]">
+                {deepCreatureSvg(380, 138)}
               </div>
-              {fishSchools.map((fish) => {
+              {fishSchools.map((fish, index) => {
                 const offsetX = pointer.active ? (pointer.x - 0.5) * fish.drift * fish.depth * (fish.dir > 0 ? -1 : 1) : 0;
                 const offsetY = pointer.active ? (pointer.y - 0.45) * 15 * fish.depth : 0;
                 return (
                   <div
                     key={fish.id}
                     className="absolute animate-[fish-drift_var(--dur)_ease-in-out_infinite]"
-                    style={{ left: fish.left, top: fish.top, opacity: fish.opacity, animationDelay: fish.delay, ["--dur" as string]: fish.duration }}
+                    style={{ left: fish.left, top: `${Number.parseFloat(fish.top) + (index % 2 === 0 ? 3 : -2)}%`, opacity: fish.opacity + 0.18, animationDelay: fish.delay, ["--dur" as string]: fish.duration }}
                   >
                     <div style={{ transform: `translate3d(${offsetX}px, ${offsetY}px, 0) ${fish.dir < 0 ? "scaleX(-1)" : "scaleX(1)"}` }}>
-                      {fishSvg(fish.color, fish.size)}
+                      {fishSvg(index % 3 === 0 ? "#84f7e4" : index % 3 === 1 ? "#8ca6ff" : "#b396ff", fish.size + 14)}
                     </div>
                   </div>
                 );
               })}
-              {sparkBubbles.map((bubble) => (
+              {sparkBubbles.map((bubble, index) => (
                 <div
                   key={bubble.id}
-                  className="absolute bottom-[-10%] rounded-full border border-cyan-200/12 bg-cyan-100/4 shadow-[0_0_16px_rgba(120,200,220,0.08)] animate-[rise_var(--dur)_linear_infinite]"
-                  style={{ left: bubble.left, width: bubble.size, height: bubble.size, animationDelay: bubble.delay, ["--dur" as string]: bubble.duration }}
+                  className="absolute bottom-[-10%] rounded-full border border-cyan-200/16 bg-cyan-100/6 shadow-[0_0_18px_rgba(120,200,220,0.1)] animate-[rise_var(--dur)_linear_infinite]"
+                  style={{ left: bubble.left, width: bubble.size + (index % 3), height: bubble.size + (index % 3), animationDelay: bubble.delay, ["--dur" as string]: bubble.duration }}
                 />
               ))}
-              <div className="absolute inset-x-0 top-0 h-[24%] bg-[linear-gradient(180deg,rgba(4,16,28,0.62),rgba(4,16,28,0.18),transparent_100%)]" />
-              <div className="absolute inset-x-0 bottom-0 h-[34%] bg-[linear-gradient(180deg,transparent_0%,rgba(5,10,18,0.24)_18%,rgba(3,8,14,0.92)_100%)]" />
-              <div className="absolute inset-x-[10%] bottom-[22%] h-[18%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(74,120,182,0.14),rgba(56,210,190,0.06)_40%,transparent_72%)] blur-2xl" />
-              <div className="absolute inset-x-0 bottom-0 h-[20%]">
-                {kelpStrands.filter((_, index) => index % 2 === 0).map((strand) => (
+              <div className="absolute inset-x-0 top-0 h-[18%] bg-[linear-gradient(180deg,rgba(7,18,30,0.78),rgba(7,18,30,0.18),transparent_100%)]" />
+              <div className="absolute inset-x-[12%] top-[14%] h-[22%] rounded-full border border-cyan-200/16 opacity-[0.46] animate-[glyph-pulse_12s_ease-in-out_infinite]" />
+              <div className="absolute inset-x-[28%] top-[24%] h-[14%] rounded-full border border-violet-300/16 opacity-[0.42] animate-[glyph-pulse_15s_ease-in-out_infinite] [animation-delay:-4s]" />
+              <div className="absolute inset-x-0 bottom-0 h-[36%] bg-[linear-gradient(180deg,transparent_0%,rgba(5,10,18,0.26)_16%,rgba(3,8,14,0.96)_100%)]" />
+              <div className="absolute inset-x-[10%] bottom-[20%] h-[18%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(79,119,255,0.18),rgba(55,224,195,0.1)_40%,transparent_72%)] blur-2xl" />
+              <div className="absolute inset-x-0 bottom-0 h-[22%]">
+                {kelpStrands.filter((_, index) => index % 2 === 0).map((strand, index) => (
                   <div
                     key={strand.id}
-                    className="absolute bottom-0 rounded-t-full bg-[linear-gradient(180deg,rgba(44,88,90,0.02),rgba(40,120,108,0.34)_55%,rgba(10,30,26,0.92)_100%)] animate-[kelp-sway_var(--dur)_ease-in-out_infinite]"
-                    style={{ left: strand.left, width: strand.width, height: Math.max(34, strand.height - 10), opacity: strand.opacity - 0.03, animationDelay: strand.delay, ["--dur" as string]: strand.duration }}
+                    className="absolute bottom-0 rounded-t-full bg-[linear-gradient(180deg,rgba(50,86,105,0.03),rgba(60,136,122,0.34)_42%,rgba(16,34,55,0.72)_70%,rgba(12,24,30,0.96)_100%)] animate-[kelp-sway_var(--dur)_ease-in-out_infinite]"
+                    style={{ left: strand.left, width: Math.max(10, strand.width + 1), height: Math.max(42, strand.height + 8), opacity: strand.opacity, animationDelay: strand.delay, ["--dur" as string]: `${8 + (index % 4) * 1.2}s` }}
                   />
                 ))}
               </div>
             </div>
             <div className="pointer-events-none absolute inset-x-[18%] top-[11%] h-[22%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(7,19,31,0.42),transparent_72%)] blur-2xl" />
             <svg className="absolute inset-0 h-full w-full animate-[scene-swell_11s_ease-in-out_infinite]" viewBox="0 0 1440 760" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0 274C96 230 194 220 292 238C392 256 486 312 588 304C692 296 778 232 884 230C1002 228 1096 300 1198 316C1288 330 1368 310 1440 280V436H0V274Z" fill="rgba(62,116,152,0.18)" />
-              <path d="M0 248C102 200 204 190 304 208C404 226 494 278 594 272C698 266 782 202 888 198C1004 194 1098 264 1200 280C1290 294 1370 272 1440 244" stroke="rgba(205,247,255,0.54)" strokeWidth="5" fill="none" />
-              <path d="M0 294C104 262 204 258 302 274C404 290 496 342 596 336C700 330 782 272 888 270C1000 268 1100 338 1202 352C1290 364 1370 340 1440 312" stroke="rgba(140,217,240,0.22)" strokeWidth="4" fill="none" />
+              <path d="M0 266C96 224 194 218 294 238C396 258 490 320 592 314C696 308 780 240 886 236C1002 232 1096 308 1198 326C1288 342 1368 322 1440 292V444H0V266Z" fill="rgba(45,84,132,0.18)" />
+              <path d="M0 244C102 198 204 194 304 214C404 234 494 288 594 282C698 276 782 210 888 206C1004 202 1098 274 1200 292C1290 308 1370 286 1440 258" stroke="rgba(175,244,255,0.44)" strokeWidth="4" fill="none" />
+              <path d="M0 288C104 258 204 256 304 274C404 292 496 348 596 344C700 340 782 280 888 278C1000 276 1100 348 1202 366C1290 382 1370 360 1440 332" stroke="rgba(151,124,255,0.22)" strokeWidth="4" fill="none" />
               <path d="M0 424C114 406 222 414 324 434C428 454 526 508 628 504C734 500 822 446 926 446C1040 446 1134 506 1240 520C1316 530 1382 520 1440 498V760H0V424Z" fill="rgba(7,21,34,0.84)" />
               <path d="M0 448C116 434 224 442 326 462C430 482 526 534 628 530C734 526 824 474 928 474C1040 474 1136 532 1240 544C1318 554 1384 544 1440 524" stroke="rgba(68,130,170,0.18)" strokeWidth="4" fill="none" />
             </svg>
