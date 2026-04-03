@@ -91,3 +91,18 @@ body {
   78% { opacity: 0.12; }
   100% { transform: translate3d(148vw, -4vh, 0) scale(1.04); opacity: 0; }
 }
+
+@keyframes scene-swell {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1.015); }
+  50% { transform: translate3d(-12px, 6px, 0) scale(1.03); }
+}
+
+@keyframes void-drift {
+  0%, 100% { transform: translate3d(-2%, 0, 0) scale(1) rotate(var(--rot, 0deg)); }
+  50% { transform: translate3d(2%, -4%, 0) scale(1.04) rotate(calc(var(--rot, 0deg) + 3deg)); }
+}
+
+@keyframes glyph-pulse {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(0.92); opacity: 0.08; }
+  50% { transform: translate3d(0, -6px, 0) scale(1.08); opacity: 0.24; }
+}

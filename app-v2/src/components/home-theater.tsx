@@ -50,6 +50,28 @@ type DeepSilhouette = {
   opacity: number;
 };
 
+type WaterSignal = {
+  id: string;
+  left: string;
+  top: string;
+  width: string;
+  height: string;
+  rotate: number;
+  duration: string;
+  delay: string;
+  opacity: number;
+};
+
+type DriftGlyph = {
+  id: string;
+  left: string;
+  top: string;
+  size: number;
+  duration: string;
+  delay: string;
+  opacity: number;
+};
+
 type SavedPortrait = {
   id: string;
   title: string;
@@ -373,6 +395,31 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
     [],
   );
 
+  const waterSignals = useMemo<WaterSignal[]>(
+    () => [
+      { id: "signal-1", left: "6%", top: "20%", width: "28%", height: "18%", rotate: -8, duration: "24s", delay: "0s", opacity: 0.24 },
+      { id: "signal-2", left: "22%", top: "34%", width: "34%", height: "20%", rotate: 6, duration: "28s", delay: "-8s", opacity: 0.2 },
+      { id: "signal-3", left: "48%", top: "18%", width: "26%", height: "16%", rotate: -4, duration: "22s", delay: "-11s", opacity: 0.18 },
+      { id: "signal-4", left: "62%", top: "36%", width: "30%", height: "18%", rotate: 8, duration: "30s", delay: "-5s", opacity: 0.22 },
+      { id: "signal-5", left: "12%", top: "54%", width: "24%", height: "14%", rotate: -10, duration: "26s", delay: "-14s", opacity: 0.16 },
+      { id: "signal-6", left: "58%", top: "56%", width: "20%", height: "12%", rotate: 12, duration: "32s", delay: "-17s", opacity: 0.14 },
+    ],
+    [],
+  );
+
+  const driftGlyphs = useMemo<DriftGlyph[]>(
+    () => Array.from({ length: 9 }, (_, i) => ({
+      id: `glyph-${i}`,
+      left: `${10 + i * 9}%`,
+      top: `${16 + (i % 4) * 14}%`,
+      size: 18 + (i % 3) * 8,
+      duration: `${12 + i * 1.8}s`,
+      delay: `${i * -1.6}s`,
+      opacity: 0.08 + (i % 3) * 0.03,
+    })),
+    [],
+  );
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -420,6 +467,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
       window.removeEventListener("mouseleave", resetPointer);
     };
   }, []);
+
 
   useEffect(() => {
     if (!saveNote) return;
@@ -687,115 +735,106 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
 
   return (
     <div className="relative min-h-screen overflow-x-hidden text-white" style={{ fontFamily: "'Courier New', monospace" }}>
-      <div className="pointer-events-none fixed inset-0 -z-20 overflow-hidden bg-[linear-gradient(180deg,#03111d_0%,#082038_24%,#0e3550_48%,#0b2338_72%,#040b14_100%)]">
-        <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1440 1200" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <linearGradient id="seaGlow" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(162,225,255,0.24)" />
-              <stop offset="38%" stopColor="rgba(82,156,205,0.18)" />
-              <stop offset="100%" stopColor="rgba(6,15,24,0)" />
-            </linearGradient>
-            <linearGradient id="trenchBody" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="rgba(91,162,205,0.32)" />
-              <stop offset="55%" stopColor="rgba(34,86,122,0.22)" />
-              <stop offset="100%" stopColor="rgba(5,14,22,0.04)" />
-            </linearGradient>
-            <radialGradient id="waterBloom" cx="50%" cy="20%" r="60%">
-              <stop offset="0%" stopColor="rgba(156,228,255,0.22)" />
-              <stop offset="45%" stopColor="rgba(78,151,196,0.12)" />
-              <stop offset="100%" stopColor="rgba(5,18,30,0)" />
-            </radialGradient>
-          </defs>
-          <rect width="1440" height="1200" fill="url(#waterBloom)" />
-          <path d="M0 332C90 298 170 292 254 304C338 316 420 354 500 348C582 342 648 286 736 284C840 282 912 354 1002 364C1092 374 1180 340 1262 320C1332 302 1388 300 1440 312V520H0V332Z" fill="url(#trenchBody)" />
-          <path d="M0 310C92 276 174 272 256 286C338 300 420 336 502 330C586 324 648 270 740 268C842 266 914 336 1004 346C1094 356 1182 320 1264 298C1334 280 1390 278 1440 290" stroke="rgba(191,241,255,0.68)" strokeWidth="6" fill="none" />
-          <path d="M0 352C92 326 176 324 258 338C340 352 424 388 504 382C588 376 652 326 742 326C842 326 918 392 1004 402C1090 412 1178 382 1260 360C1330 342 1388 340 1440 350" stroke="rgba(141,214,242,0.42)" strokeWidth="4" fill="none" />
-          <ellipse cx="420" cy="246" rx="360" ry="140" fill="url(#seaGlow)" />
-          <ellipse cx="1080" cy="224" rx="300" ry="120" fill="url(#seaGlow)" opacity="0.7" />
-          <ellipse cx="760" cy="438" rx="620" ry="180" fill="rgba(10,38,58,0.28)" />
-          <path d="M0 760C110 712 230 700 344 724C450 746 544 806 654 804C760 802 852 736 960 734C1076 732 1174 796 1286 808C1348 814 1400 810 1440 798V1200H0V760Z" fill="rgba(4,12,20,0.78)" />
-          <path d="M0 794C112 762 232 756 346 776C458 796 544 850 654 848C764 846 854 784 964 784C1076 784 1176 846 1286 856C1350 862 1402 858 1440 848" stroke="rgba(66,128,166,0.18)" strokeWidth="3" fill="none" />
-        </svg>
+      <div className="pointer-events-none fixed inset-0 -z-20 overflow-hidden bg-[radial-gradient(circle_at_50%_0%,rgba(86,166,222,0.14),transparent_28%),linear-gradient(180deg,#020913_0%,#05111f_30%,#061423_58%,#030910_100%)]">
+        <div className="absolute inset-x-0 top-0 h-[28vh] bg-[radial-gradient(ellipse_at_50%_0%,rgba(104,200,255,0.12),transparent_66%)]" />
+        <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-[linear-gradient(180deg,transparent_0%,rgba(2,7,14,0.32)_25%,rgba(1,4,10,0.92)_100%)]" />
       </div>
-      {waveBands.map((band) => (
-        <div
-          key={band.id}
-          className="pointer-events-none fixed left-[-8%] right-[-8%] -z-[19] rounded-[999px] bg-[linear-gradient(90deg,transparent_0%,rgba(120,185,210,0.14)_18%,rgba(101,157,194,0.22)_50%,rgba(120,185,210,0.12)_82%,transparent_100%)] animate-[tide-sway_var(--dur)_ease-in-out_infinite]"
-          style={{ top: band.top, height: band.height, opacity: band.opacity, filter: `blur(${band.blur})`, animationDelay: band.delay, ["--dur" as string]: band.duration }}
-        />
-      ))}
-      {caustics.map((item) => (
-        <div
-          key={item.id}
-          className="pointer-events-none fixed -z-10 rounded-full bg-[radial-gradient(circle,rgba(88,180,255,0.11)_0%,rgba(59,134,210,0.08)_35%,transparent_72%)] mix-blend-screen animate-[caustic_var(--dur)_ease-in-out_infinite]"
-          style={{ width: item.size, height: item.size, top: item.top, left: item.left, animationDelay: item.delay, ["--dur" as string]: item.duration }}
-        />
-      ))}
-      {deepSilhouettes.map((shadow, index) => (
-        <div
-          key={shadow.id}
-          className="pointer-events-none fixed -z-[9] animate-[shadow-drift_var(--dur)_ease-in-out_infinite]"
-          style={{ left: shadow.left, top: shadow.top, opacity: shadow.opacity, filter: "blur(1px)", animationDelay: shadow.delay, ["--dur" as string]: shadow.duration }}
-        >
-          <div style={{ transform: `translateX(${pointer.active ? (pointer.x - 0.5) * (index === 0 ? -28 : 20) : 0}px)` }}>
-            {deepCreatureSvg(shadow.width, shadow.height)}
-          </div>
-        </div>
-      ))}
-      <div className="pointer-events-none fixed left-[-24%] top-[60%] -z-[8] opacity-[0.22] animate-[leviathan-pass_72s_linear_infinite]">
-        {deepCreatureSvg(360, 130)}
-      </div>
-      {fishSchools.map((fish) => {
-        const offsetX = pointer.active ? (pointer.x - 0.5) * fish.drift * fish.depth * (fish.dir > 0 ? -1 : 1) : 0;
-        const offsetY = pointer.active ? (pointer.y - 0.45) * 18 * fish.depth : 0;
-        return (
-          <div
-            key={fish.id}
-            className="pointer-events-none fixed -z-[8] animate-[fish-drift_var(--dur)_ease-in-out_infinite]"
-            style={{ left: fish.left, top: fish.top, opacity: fish.opacity, animationDelay: fish.delay, ["--dur" as string]: fish.duration }}
-          >
-            <div style={{ transform: `translate3d(${offsetX}px, ${offsetY}px, 0) ${fish.dir < 0 ? "scaleX(-1)" : "scaleX(1)"}` }}>
-              {fishSvg(fish.color, fish.size)}
-            </div>
-          </div>
-        );
-      })}
-      {sparkBubbles.map((bubble) => (
-        <div
-          key={bubble.id}
-          className="pointer-events-none fixed bottom-[-20px] -z-[8] rounded-full border border-sky-300/20 bg-sky-200/5 shadow-[0_0_16px_rgba(120,200,220,0.08)] animate-[rise_var(--dur)_linear_infinite]"
-          style={{ left: bubble.left, width: bubble.size, height: bubble.size, animationDelay: bubble.delay, ["--dur" as string]: bubble.duration }}
-        />
-      ))}
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 -z-[7] h-[30vh] bg-[linear-gradient(180deg,transparent_0%,rgba(4,12,20,0.12)_10%,rgba(3,12,20,0.56)_48%,rgba(2,6,12,0.95)_100%)]" />
-      <div className="pointer-events-none fixed inset-x-0 bottom-[92px] -z-[7] h-[90px] bg-[radial-gradient(ellipse_at_center,rgba(76,140,168,0.14),transparent_72%)]" />
-      <div className="pointer-events-none fixed inset-x-0 bottom-0 -z-[6] h-[132px]">
-        {kelpStrands.map((strand) => (
-          <div
-            key={strand.id}
-            className="absolute bottom-0 rounded-t-full bg-[linear-gradient(180deg,rgba(60,110,90,0.03),rgba(54,122,104,0.55)_55%,rgba(16,42,34,0.95)_100%)] animate-[kelp-sway_var(--dur)_ease-in-out_infinite]"
-            style={{ left: strand.left, width: strand.width, height: strand.height, opacity: strand.opacity, animationDelay: strand.delay, ["--dur" as string]: strand.duration }}
-          />
-        ))}
-      </div>
+      <div className="pointer-events-none fixed inset-x-0 bottom-0 -z-[7] h-[26vh] bg-[linear-gradient(180deg,transparent_0%,rgba(4,12,20,0.18)_18%,rgba(2,6,12,0.95)_100%)]" />
+      <div className="pointer-events-none fixed inset-x-0 bottom-[92px] -z-[7] h-[80px] bg-[radial-gradient(ellipse_at_center,rgba(70,126,162,0.12),transparent_72%)]" />
 
       <main id="main" className="relative z-10 flex min-h-screen flex-col items-center justify-center px-5 pb-[130px] pt-10 max-sm:px-4 max-sm:pb-[118px]">
         <div className="relative w-full max-w-[1180px]">
           <div className="relative overflow-hidden rounded-[32px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(6,25,42,0.92),rgba(5,16,28,0.98))] shadow-[0_30px_120px_rgba(0,0,0,0.42)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_14%,rgba(169,232,255,0.18),transparent_28%),radial-gradient(circle_at_18%_18%,rgba(110,190,228,0.14),transparent_18%),radial-gradient(circle_at_82%_16%,rgba(96,180,220,0.12),transparent_18%)]" />
-            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 1440 760" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M0 268C98 222 196 210 296 226C398 242 492 298 592 290C694 282 778 222 882 218C1000 214 1094 286 1198 300C1288 312 1368 290 1440 260V430H0V268Z" fill="rgba(72,152,194,0.5)" />
-              <path d="M0 246C102 192 202 182 302 200C402 218 494 270 594 262C698 254 780 192 886 188C1002 184 1098 256 1200 270C1290 282 1370 258 1440 228" stroke="rgba(209,247,255,0.86)" strokeWidth="8" fill="none" />
-              <path d="M0 288C104 248 206 242 304 258C406 274 496 324 596 318C700 312 782 254 888 252C1000 250 1102 320 1202 334C1290 346 1370 322 1440 294" stroke="rgba(146,215,240,0.54)" strokeWidth="5" fill="none" />
+            <div className="absolute inset-x-[1.5%] top-[14%] bottom-[15%] overflow-hidden rounded-[28px] border border-cyan-200/8 bg-[linear-gradient(180deg,rgba(9,31,50,0.18),rgba(4,10,18,0.06))]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_8%,rgba(132,220,255,0.16),transparent_30%),radial-gradient(circle_at_18%_18%,rgba(118,86,210,0.16),transparent_24%),radial-gradient(circle_at_82%_24%,rgba(66,182,154,0.14),transparent_22%),linear-gradient(180deg,rgba(7,21,35,0.16)_0%,rgba(9,34,54,0.38)_34%,rgba(8,18,33,0.1)_54%,rgba(5,10,18,0.68)_100%)]" />
+              {waveBands.map((band) => (
+                <div
+                  key={band.id}
+                  className="absolute left-[-8%] right-[-8%] rounded-[999px] bg-[linear-gradient(90deg,transparent_0%,rgba(105,145,228,0.08)_12%,rgba(96,214,206,0.18)_48%,rgba(144,102,218,0.14)_72%,transparent_100%)] animate-[tide-sway_var(--dur)_ease-in-out_infinite]"
+                  style={{ top: band.top, height: band.height, opacity: band.opacity + 0.04, filter: `blur(${band.blur})`, animationDelay: band.delay, ["--dur" as string]: band.duration }}
+                />
+              ))}
+              {caustics.map((item) => (
+                <div
+                  key={item.id}
+                  className="absolute rounded-full bg-[radial-gradient(circle,rgba(92,205,255,0.14)_0%,rgba(74,128,255,0.08)_28%,rgba(121,84,206,0.08)_48%,transparent_74%)] mix-blend-screen animate-[caustic_var(--dur)_ease-in-out_infinite]"
+                  style={{ width: item.size * 0.58, height: item.size * 0.58, top: item.top, left: item.left, animationDelay: item.delay, ["--dur" as string]: item.duration }}
+                />
+              ))}
+              {waterSignals.map((signal) => (
+                <div
+                  key={signal.id}
+                  className="absolute rounded-[999px] border border-cyan-200/12 bg-[linear-gradient(90deg,rgba(77,136,255,0.02),rgba(86,220,208,0.14),rgba(153,110,234,0.12),rgba(77,136,255,0.02))] blur-[1px] animate-[void-drift_var(--dur)_ease-in-out_infinite]"
+                  style={{ left: signal.left, top: signal.top, width: signal.width, height: signal.height, opacity: signal.opacity, animationDelay: signal.delay, ["--dur" as string]: signal.duration, ["--rot" as string]: `${signal.rotate}deg` }}
+                />
+              ))}
+              {driftGlyphs.map((glyph) => (
+                <div
+                  key={glyph.id}
+                  className="absolute flex items-center justify-center rounded-full border border-cyan-200/12 text-[10px] text-cyan-100/60 animate-[glyph-pulse_var(--dur)_ease-in-out_infinite]"
+                  style={{ left: glyph.left, top: glyph.top, width: glyph.size, height: glyph.size, opacity: glyph.opacity, animationDelay: glyph.delay, ["--dur" as string]: glyph.duration }}
+                >
+                  +
+                </div>
+              ))}
+              {deepSilhouettes.map((shadow, index) => (
+                <div
+                  key={shadow.id}
+                  className="absolute animate-[shadow-drift_var(--dur)_ease-in-out_infinite]"
+                  style={{ left: shadow.left, top: shadow.top, opacity: shadow.opacity, filter: "blur(1px)", animationDelay: shadow.delay, ["--dur" as string]: shadow.duration }}
+                >
+                  <div style={{ transform: `translateX(${pointer.active ? (pointer.x - 0.5) * (index === 0 ? -18 : 14) : 0}px)` }}>
+                    {deepCreatureSvg(shadow.width, shadow.height)}
+                  </div>
+                </div>
+              ))}
+              <div className="absolute left-[-12%] top-[58%] opacity-[0.16] animate-[leviathan-pass_78s_linear_infinite]">
+                {deepCreatureSvg(320, 118)}
+              </div>
+              {fishSchools.map((fish) => {
+                const offsetX = pointer.active ? (pointer.x - 0.5) * fish.drift * fish.depth * (fish.dir > 0 ? -1 : 1) : 0;
+                const offsetY = pointer.active ? (pointer.y - 0.45) * 15 * fish.depth : 0;
+                return (
+                  <div
+                    key={fish.id}
+                    className="absolute animate-[fish-drift_var(--dur)_ease-in-out_infinite]"
+                    style={{ left: fish.left, top: fish.top, opacity: fish.opacity, animationDelay: fish.delay, ["--dur" as string]: fish.duration }}
+                  >
+                    <div style={{ transform: `translate3d(${offsetX}px, ${offsetY}px, 0) ${fish.dir < 0 ? "scaleX(-1)" : "scaleX(1)"}` }}>
+                      {fishSvg(fish.color, fish.size)}
+                    </div>
+                  </div>
+                );
+              })}
+              {sparkBubbles.map((bubble) => (
+                <div
+                  key={bubble.id}
+                  className="absolute bottom-[-10%] rounded-full border border-cyan-200/12 bg-cyan-100/4 shadow-[0_0_16px_rgba(120,200,220,0.08)] animate-[rise_var(--dur)_linear_infinite]"
+                  style={{ left: bubble.left, width: bubble.size, height: bubble.size, animationDelay: bubble.delay, ["--dur" as string]: bubble.duration }}
+                />
+              ))}
+              <div className="absolute inset-x-0 top-0 h-[24%] bg-[linear-gradient(180deg,rgba(4,16,28,0.62),rgba(4,16,28,0.18),transparent_100%)]" />
+              <div className="absolute inset-x-0 bottom-0 h-[34%] bg-[linear-gradient(180deg,transparent_0%,rgba(5,10,18,0.24)_18%,rgba(3,8,14,0.92)_100%)]" />
+              <div className="absolute inset-x-[10%] bottom-[22%] h-[18%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(74,120,182,0.14),rgba(56,210,190,0.06)_40%,transparent_72%)] blur-2xl" />
+              <div className="absolute inset-x-0 bottom-0 h-[20%]">
+                {kelpStrands.filter((_, index) => index % 2 === 0).map((strand) => (
+                  <div
+                    key={strand.id}
+                    className="absolute bottom-0 rounded-t-full bg-[linear-gradient(180deg,rgba(44,88,90,0.02),rgba(40,120,108,0.34)_55%,rgba(10,30,26,0.92)_100%)] animate-[kelp-sway_var(--dur)_ease-in-out_infinite]"
+                    style={{ left: strand.left, width: strand.width, height: Math.max(34, strand.height - 10), opacity: strand.opacity - 0.03, animationDelay: strand.delay, ["--dur" as string]: strand.duration }}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="pointer-events-none absolute inset-x-[18%] top-[11%] h-[22%] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(7,19,31,0.42),transparent_72%)] blur-2xl" />
+            <svg className="absolute inset-0 h-full w-full animate-[scene-swell_11s_ease-in-out_infinite]" viewBox="0 0 1440 760" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M0 274C96 230 194 220 292 238C392 256 486 312 588 304C692 296 778 232 884 230C1002 228 1096 300 1198 316C1288 330 1368 310 1440 280V436H0V274Z" fill="rgba(62,116,152,0.18)" />
+              <path d="M0 248C102 200 204 190 304 208C404 226 494 278 594 272C698 266 782 202 888 198C1004 194 1098 264 1200 280C1290 294 1370 272 1440 244" stroke="rgba(205,247,255,0.54)" strokeWidth="5" fill="none" />
+              <path d="M0 294C104 262 204 258 302 274C404 290 496 342 596 336C700 330 782 272 888 270C1000 268 1100 338 1202 352C1290 364 1370 340 1440 312" stroke="rgba(140,217,240,0.22)" strokeWidth="4" fill="none" />
               <path d="M0 424C114 406 222 414 324 434C428 454 526 508 628 504C734 500 822 446 926 446C1040 446 1134 506 1240 520C1316 530 1382 520 1440 498V760H0V424Z" fill="rgba(7,21,34,0.84)" />
-              <path d="M0 448C116 434 224 442 326 462C430 482 526 534 628 530C734 526 824 474 928 474C1040 474 1136 532 1240 544C1318 554 1384 544 1440 524" stroke="rgba(68,130,170,0.22)" strokeWidth="4" fill="none" />
+              <path d="M0 448C116 434 224 442 326 462C430 482 526 534 628 530C734 526 824 474 928 474C1040 474 1136 532 1240 544C1318 554 1384 544 1440 524" stroke="rgba(68,130,170,0.18)" strokeWidth="4" fill="none" />
             </svg>
-
-            <div className="absolute left-[4%] top-[32%] opacity-90">{fishSvg("#b8f0ff", 96)}</div>
-            <div className="absolute left-[18%] top-[42%] opacity-62">{fishSvg("#92d7ea", 64)}</div>
-            <div className="absolute right-[6%] top-[34%] scale-x-[-1] opacity-86">{fishSvg("#b3e9f5", 88)}</div>
-            <div className="absolute right-[19%] top-[46%] scale-x-[-1] opacity-58">{fishSvg("#84c0d6", 58)}</div>
-            <div className="absolute left-[34%] top-[22%] opacity-34">{fishSvg("#77afc5", 42)}</div>
 
             <div className="relative z-10 flex min-h-[720px] flex-col justify-between px-8 pb-8 pt-8 max-md:min-h-[680px] max-sm:px-4 max-sm:pb-5 max-sm:pt-5">
               <div className="text-center">
@@ -827,7 +866,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
 
                 <div className="relative z-20 flex h-[360px] w-full max-w-[620px] items-end justify-center max-md:order-1 max-md:h-[300px]">
                   <div className="pointer-events-none absolute inset-x-[8%] bottom-[18px] h-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.1),transparent_70%)] blur-xl" />
-                  <div className="pointer-events-none absolute left-[4%] top-[-8%] animate-[hermes-swim_30s_ease-in-out_infinite,hermes-bob_4.1s_ease-in-out_infinite] max-sm:left-[-2%]">
+                  <div className="pointer-events-none absolute left-[4%] top-[-8%] animate-[hermes-swim_24s_ease-in-out_infinite,hermes-bob_3.4s_ease-in-out_infinite] max-sm:left-[-2%]">
                     <NextImage src="/hermes-transparent.png" alt="Hermes" width={300} height={300} priority unoptimized className="h-auto w-[260px] max-w-none opacity-95 max-sm:w-[170px]" />
                   </div>
                   <div className="pointer-events-none absolute right-[16%] bottom-[34px] max-sm:right-[10%]">
