@@ -784,6 +784,8 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
         <div className="relative w-full max-w-[1180px]">
           <div className="relative overflow-hidden rounded-[32px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(6,25,42,0.92),rgba(5,16,28,0.98))] shadow-[0_30px_120px_rgba(0,0,0,0.42)]">
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_14%,rgba(169,232,255,0.18),transparent_28%),radial-gradient(circle_at_18%_18%,rgba(110,190,228,0.14),transparent_18%),radial-gradient(circle_at_82%_16%,rgba(96,180,220,0.12),transparent_18%)]" />
+            <div className="pointer-events-none absolute inset-0 opacity-[0.18] mix-blend-screen bg-[repeating-linear-gradient(180deg,rgba(188,225,255,0.12)_0px,rgba(188,225,255,0.12)_1px,transparent_1px,transparent_5px)]" />
+            <div className="pointer-events-none absolute inset-0 opacity-[0.08] bg-[linear-gradient(90deg,rgba(119,92,255,0.12),transparent_22%,transparent_78%,rgba(77,230,206,0.12))]" />
             <div className="absolute inset-x-[1.5%] top-[14%] bottom-[15%] overflow-hidden rounded-[28px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(8,18,32,0.34),rgba(4,10,18,0.08))]">
               <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_10%,rgba(118,222,255,0.24),transparent_22%),radial-gradient(circle_at_18%_18%,rgba(152,98,255,0.28),transparent_18%),radial-gradient(circle_at_84%_20%,rgba(82,238,190,0.24),transparent_18%),linear-gradient(180deg,rgba(14,28,54,0.24)_0%,rgba(20,40,80,0.66)_28%,rgba(13,18,36,0.28)_48%,rgba(3,8,16,0.92)_100%)]" />
               <div className="absolute inset-0 opacity-[0.48] mix-blend-screen bg-[repeating-linear-gradient(180deg,rgba(190,230,255,0.18)_0px,rgba(190,230,255,0.18)_1px,transparent_1px,transparent_5px)]" />
@@ -833,11 +835,11 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
                   {index % 3 === 0 ? "+" : index % 3 === 1 ? "~" : "·"}
                 </div>
               ))}
-              <div className="absolute inset-x-[5%] top-[18%] space-y-2 opacity-[0.36] mix-blend-screen">
+              <div className="absolute inset-x-[4%] top-[16%] space-y-1 opacity-[0.48] mix-blend-screen">
                 {signalSeaRows.map((row, index) => (
                   <pre
                     key={row}
-                    className="overflow-hidden font-mono text-[11px] leading-[1.05] tracking-[0.22em] text-cyan-100/70 animate-[void-drift_var(--dur)_ease-in-out_infinite]"
+                    className="overflow-hidden font-mono text-[13px] leading-[1.02] tracking-[0.18em] text-cyan-100/78 animate-[void-drift_var(--dur)_ease-in-out_infinite]"
                     style={{ margin: 0, animationDelay: `${index * -1.1}s`, ["--dur" as string]: `${18 + index * 1.6}s`, ["--rot" as string]: `${index % 2 === 0 ? -0.8 : 0.8}deg` }}
                   >
                     {row}
@@ -909,6 +911,7 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
             <div className="relative z-10 flex min-h-[720px] flex-col justify-between px-8 pb-8 pt-8 max-md:min-h-[680px] max-sm:px-4 max-sm:pb-5 max-sm:pt-5">
               <div className="text-center">
                 <div className="relative inline-block">
+                  <div className="pointer-events-none absolute inset-x-[-6%] top-[-20px] bottom-[-18px] rounded-[18px] border border-cyan-200/12 bg-[linear-gradient(180deg,rgba(4,14,26,0.32),rgba(4,14,26,0.08))] shadow-[0_0_40px_rgba(97,119,255,0.08)]" />
                   <div className="pointer-events-none absolute left-1/2 top-[-36px] h-9 w-[2px] -translate-x-[72px] bg-[linear-gradient(180deg,rgba(130,160,200,0.7),rgba(130,160,200,0.1))]" />
                   <div className="pointer-events-none absolute left-1/2 top-[-36px] h-9 w-[2px] translate-x-[72px] bg-[linear-gradient(180deg,rgba(130,160,200,0.7),rgba(130,160,200,0.1))]" />
                   <div className="pointer-events-none absolute left-1/2 top-[-40px] h-2 w-2 -translate-x-[72px] rounded-full border border-sky-200/40 bg-slate-900/80" />
@@ -938,10 +941,10 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
 
                 <div className="relative z-20 flex h-[360px] w-full max-w-[620px] items-end justify-center max-md:order-1 max-md:h-[300px]">
                   <div className="pointer-events-none absolute inset-x-[8%] bottom-[18px] h-24 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(255,150,60,0.1),transparent_70%)] blur-xl" />
-                  <div className="pointer-events-none absolute left-[4%] top-[-8%] animate-[hermes-swim_24s_ease-in-out_infinite,hermes-bob_3.4s_ease-in-out_infinite] max-sm:left-[-2%]">
+                  <div className="pointer-events-none absolute left-[4%] top-[-8%] animate-[hermes-swim_24s_ease-in-out_infinite,hermes-bob_3.4s_ease-in-out_infinite] max-sm:left-[-2%]" style={{ filter: "drop-shadow(0 0 20px rgba(113,126,255,0.22)) drop-shadow(0 0 10px rgba(93,233,221,0.16))" }}>
                     <NextImage src="/hermes-transparent.png" alt="Hermes" width={300} height={300} priority unoptimized className="h-auto w-[260px] max-w-none opacity-95 max-sm:w-[170px]" />
                   </div>
-                  <div className="pointer-events-none absolute right-[16%] bottom-[34px] max-sm:right-[10%]">
+                  <div className="pointer-events-none absolute right-[16%] bottom-[34px] max-sm:right-[10%]" style={{ filter: "drop-shadow(0 0 18px rgba(95,130,255,0.16))" }}>
                     <NextImage src="/herm-of-hermes-transparent.png" alt="Herm of Hermes" width={94} height={490} unoptimized className="h-auto w-[64px] max-sm:w-[50px]" style={{ filter: "drop-shadow(0 10px 22px rgba(0,0,0,0.42))" }} />
                   </div>
                   <div className="relative w-[clamp(240px,36vw,360px)]">
