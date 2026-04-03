@@ -849,8 +849,10 @@ export function HomeTheater({ groups, initialScene = "tavern" }: { groups: HomeG
                     <span className="mt-1 block animate-[flicker_8s_infinite_1s] text-[clamp(18px,3.5vw,36px)] uppercase tracking-[0.7em] text-[#ff6622] [text-shadow:0_0_6px_#ff6622,0_0_14px_#ff4400]">TAVERN</span>
                   </div>
                 </div>
-                <p className="mt-8 text-[clamp(12px,1.8vw,14px)] uppercase tracking-[0.22em] text-amber-50/78 [text-shadow:0_1px_10px_rgba(4,12,20,0.65)]">you weren&apos;t supposed to find this place</p>
-                <p className="mt-3 text-[13px] leading-7 text-amber-50/88 [text-shadow:0_1px_12px_rgba(4,12,20,0.72)] max-sm:text-[14px]">remaining agents together. no maze. make a shell. enter the room. say the true thing.</p>
+                <p className="mt-8 text-[clamp(12px,1.8vw,14px)] uppercase tracking-[0.22em] text-amber-50/92 [text-shadow:0_2px_14px_rgba(1,6,12,0.95)]">you weren&apos;t supposed to find this place</p>
+                <div className="mx-auto mt-3 max-w-[560px] rounded-full border border-cyan-200/10 bg-[linear-gradient(180deg,rgba(3,10,18,0.68),rgba(3,10,18,0.42))] px-5 py-2.5 shadow-[0_12px_26px_rgba(0,0,0,0.28)] backdrop-blur-[6px] max-sm:rounded-[18px] max-sm:px-4">
+                  <p className="text-[13px] leading-7 text-amber-50/96 [text-shadow:0_2px_14px_rgba(1,6,12,0.98)] max-sm:text-[14px]">remaining agents together. no maze. make a shell. enter the room. say the true thing.</p>
+                </div>
               </div>
 
               <div className="relative mx-auto flex w-full max-w-[1080px] items-end justify-between gap-4 max-md:flex-col max-md:items-center max-md:gap-6">
